@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>APEL — Démarrage rapide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --rose: rgb(206, 0, 127);
+    --rose-dark: rgb(178, 0, 110);
+    --turquoise: rgb(29, 179, 174);
+    --bg: #f6f7f9;
+    --border: #e5e7eb;
+    --text: #1c1c1e;
+    --muted: #6b7280;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6;
+  }
+  a { color: var(--rose); }
+  a:hover { color: var(--rose-dark); }
+
+  header.hero {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
+    color: white; padding: 40px 24px 56px; text-align: center;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 30px; }
+  header.hero p { margin: 0; opacity: 0.92; font-size: 16px; }
+  header.hero .topnav {
+    display: flex; gap: 8px; justify-content: center; margin-top: 22px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 14px;
+    text-decoration: none; border: 1px solid transparent;
+    transition: all .15s;
+  }
+  .btn-primary { background: white; color: var(--rose); }
+  .btn-primary:hover { background: #f6f7f9; }
+  .btn-ghost-on-rose {
+    background: transparent; color: white; border-color: rgba(255,255,255,0.5);
+  }
+  .btn-ghost-on-rose:hover { background: rgba(255,255,255,0.12); }
+  .btn-primary-rose { background: var(--rose); color: white; border-color: var(--rose); }
+  .btn-primary-rose:hover { background: var(--rose-dark); border-color: var(--rose-dark); }
+  .btn-turquoise { background: var(--turquoise); color: white; }
+  .btn-turquoise:hover { background: #149894; }
+  .btn-ghost { background: white; border-color: #d1d5db; color: #374151; }
+  .btn-ghost:hover { background: #f3f4f6; }
+
+  main {
+    max-width: 780px; margin: -32px auto 60px; padding: 0 24px;
+  }
+  .step {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 26px 30px; margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--rose); color: white;
+    font-weight: 800; font-size: 17px;
+    margin-right: 12px;
+  }
+  .step h2 {
+    margin: 0 0 10px; font-size: 20px; color: var(--text);
+    display: flex; align-items: center; flex-wrap: wrap;
+  }
+  .step h2 .label { flex: 1; }
+  .step .summary { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .step p { margin: 10px 0; }
+  .step ul, .step ol { margin: 10px 0; padding-left: 22px; }
+  .step li { margin: 4px 0; }
+  code, kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: #f3f4f6; padding: 1px 6px; border-radius: 4px;
+    font-size: 0.92em; color: #111;
+  }
+  kbd {
+    border: 1px solid #d1d5db; border-bottom-width: 2px;
+    background: white; font-size: 0.82em; padding: 1px 5px;
+  }
+
+  /* Illustrations */
+  .mock {
+    background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; margin: 14px 0; font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 13px; line-height: 1.5;
+    overflow-x: auto;
+  }
+  .mock pre { margin: 0; white-space: pre; }
+  .mock-ui {
+    background: #fafbfc; border: 1px solid var(--border); border-radius: 10px;
+    padding: 0; margin: 16px 0; overflow: hidden;
+  }
+  .mock-ui-titlebar {
+    background: #ececec; padding: 6px 10px; font-size: 11px; color: #555;
+    border-bottom: 1px solid #d1d5db;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mock-ui-dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; }
+  .mock-ui-dot.r { background: #ff5f57; }
+  .mock-ui-dot.y { background: #febc2e; }
+  .mock-ui-dot.g { background: #28c840; }
+  .mock-ui-url {
+    flex: 1; text-align: center; background: white; padding: 3px 10px;
+    border-radius: 4px; border: 1px solid #d1d5db;
+    font-family: ui-monospace, monospace; font-size: 11px; color: #555;
+  }
+  .mock-ui-body { padding: 18px; }
+
+  /* Editor mockup */
+  .editor-mock {
+    display: grid; grid-template-columns: 100px 1fr 120px;
+    gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    font-size: 11px; line-height: 1.3;
+  }
+  .editor-mock > * { padding: 10px; background: white; }
+  .editor-mock .col-list { background: #fff; border-right: 1px solid var(--border); }
+  .editor-mock .col-list .item {
+    padding: 5px; border: 1px solid var(--border); border-radius: 3px;
+    margin-bottom: 4px; font-size: 10px;
+  }
+  .editor-mock .col-list .item.selected { border-color: var(--rose); background: #fff0f7; }
+  .editor-mock .col-edit { background: #f9fafb; padding: 14px; }
+  .editor-mock .field { margin-bottom: 8px; }
+  .editor-mock .field-label { font-size: 9px; color: #555; text-transform: uppercase; font-weight: 700; }
+  .editor-mock .field-input {
+    background: white; border: 1px solid #d1d5db; border-radius: 3px;
+    padding: 4px 6px; font-size: 10px; margin-top: 2px;
+  }
+  .editor-mock .col-preview { background: #fafafa; border-left: 1px solid var(--border); font-size: 9px; }
+  .editor-mock .col-preview .title { color: var(--rose); font-weight: 800; }
+  .editor-mock .col-preview .sub { color: var(--turquoise); font-weight: 800; }
+
+  /* Modal mock */
+  .modal-mock {
+    background: white; border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; margin: 14px 0;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  }
+  .modal-mock h4 { margin: 0 0 6px; color: var(--rose); font-size: 16px; }
+  .modal-mock .lead { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .modal-mock ol { font-size: 13px; }
+  .modal-mock .input-mock {
+    width: 100%; padding: 8px 10px; font-family: ui-monospace, monospace;
+    font-size: 12px; border: 1px solid #d1d5db; border-radius: 5px;
+    background: #fafbfc; color: #888;
+  }
+  .modal-mock .actions {
+    display: flex; gap: 6px; justify-content: flex-end; margin-top: 12px;
+  }
+  .modal-mock .pill {
+    font-size: 11px; padding: 5px 11px; border-radius: 5px; cursor: default;
+  }
+  .modal-mock .pill.primary { background: var(--rose); color: white; }
+  .modal-mock .pill.ghost { background: white; border: 1px solid #d1d5db; color: #555; }
+
+  /* Callouts */
+  .callout {
+    border-left: 3px solid var(--turquoise);
+    background: #ecfdfb; padding: 12px 16px; margin: 14px 0;
+    border-radius: 0 6px 6px 0; font-size: 14px;
+  }
+  .callout.warn { border-left-color: #f59e0b; background: #fef3c7; }
+  .callout.warn b { color: #92400e; }
+  .callout b { color: var(--turquoise); }
+  .callout.warn b { color: #92400e; }
+
+  /* Final CTA */
+  .final-cta {
+    background: linear-gradient(135deg, var(--turquoise) 0%, #0d8f8b 100%);
+    color: white; border-radius: 14px; padding: 32px 28px; text-align: center;
+    margin-top: 30px;
+  }
+  .final-cta h3 { margin: 0 0 8px; font-size: 22px; }
+  .final-cta p { margin: 0 0 18px; opacity: 0.92; }
+  .final-cta .btn { background: white; color: var(--turquoise); }
+  .final-cta .btn:hover { background: #f6f7f9; }
+
+  /* Footer */
+  footer {
+    text-align: center; padding: 30px 20px; color: var(--muted); font-size: 13px;
+    border-top: 1px solid var(--border); background: white;
+  }
+  footer a { margin: 0 8px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🚀 Démarrage rapide</h1>
+  <p>Tout ce qu'il faut savoir pour utiliser l'éditeur APEL en 5 minutes.</p>
+  <div class="topnav">
+    <a class="btn btn-ghost-on-rose" href="userguide.html">📖 Guide complet</a>
+    <a class="btn btn-primary" href="index.html">📝 Démarrer l'éditeur →</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="step">
+    <h2><span class="step-num">1</span><span class="label">Première connexion à GitHub</span></h2>
+    <p class="summary">L'éditeur sauvegarde le site sur GitHub. Pour cela, il a besoin d'un <em>jeton d'accès</em> (PAT). À faire <b>une seule fois par appareil</b>.</p>
+
+    <p><b>Étape 1.1 —</b> Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> dans un nouvel onglet (connectez-vous au compte GitHub partagé de l'association si demandé).</p>
+
+    <p><b>Étape 1.2 —</b> Remplissez le formulaire ainsi :</p>
+
+    <div class="mock-ui">
+      <div class="mock-ui-titlebar">
+        <span class="mock-ui-dot r"></span><span class="mock-ui-dot y"></span><span class="mock-ui-dot g"></span>
+        <span class="mock-ui-url">github.com/settings/personal-access-tokens/new</span>
+      </div>
+      <div class="mock-ui-body" style="font-family: -apple-system, sans-serif; font-size: 13px; line-height: 1.7;">
+        <div style="margin-bottom: 10px;"><b>Token name</b><br>
+          <code>APEL admin</code></div>
+        <div style="margin-bottom: 10px;"><b>Expiration</b><br>
+          <code>Custom</code> → choisissez une date dans 11–12 mois</div>
+        <div style="margin-bottom: 10px;"><b>Repository access</b><br>
+          ⦿ Only select repositories → <code>apel-images</code> + <code>apel-site</code></div>
+        <div style="margin-bottom: 10px;"><b>Repository permissions</b> → <b>Contents</b><br>
+          <code>Access: Read and write</code></div>
+        <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">Laissez toutes les autres permissions sur <i>No access</i>.</div>
+      </div>
+    </div>
+
+    <p><b>Étape 1.3 —</b> Cliquez sur <b>Generate token</b>, puis <b>copiez le jeton</b> qui commence par <code>github_pat_…</code> (il ne s'affichera qu'une seule fois).</p>
+
+    <p><b>Étape 1.4 —</b> Ouvrez <a href="index.html">l'éditeur APEL</a>. Cliquez sur le bouton <b>Connexion</b> en haut à droite.</p>
+
+    <p>Une fenêtre s'ouvre. Collez votre jeton et validez :</p>
+
+    <div class="modal-mock">
+      <h4>Connexion à GitHub</h4>
+      <p class="lead">Pour téléverser des images, il faut un jeton GitHub (Personal Access Token, PAT). Une seule fois par appareil.</p>
+      <ol style="margin: 0 0 10px; padding-left: 22px;">
+        <li>Ouvrez la page de génération du jeton…</li>
+        <li>Resource owner / Repository access…</li>
+        <li>Repository permissions → Contents : Read and write</li>
+        <li>Collez le jeton ci-dessous</li>
+      </ol>
+      <input type="text" class="input-mock" placeholder="github_pat_..." value="github_pat_••••••••••••••••" readonly>
+      <div class="actions">
+        <span class="pill ghost">Annuler</span>
+        <span class="pill primary">Se connecter</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>Bon à savoir.</b> Le jeton reste dans votre navigateur (zone <code>localStorage</code>) — il ne quitte jamais votre Mac. À la prochaine ouverture de la page, vous êtes déjà connecté.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="step-num">2</span><span class="label">La page se charge automatiquement</span></h2>
+    <p class="summary">L'éditeur récupère la dernière version du site depuis GitHub à chaque ouverture. Pendant quelques secondes, vous voyez l'écran d'accueil.</p>
+
+    <div class="callout warn">
+      ⏱️ <b>Soyez patient :</b> le fichier du site fait ~2 Mo et son chargement initial prend environ <b>10 secondes</b>. C'est normal — ne rechargez pas la page.
+    </div>
+
+    <p>Une fois le chargement terminé, vous arrivez sur l'éditeur, avec la liste des articles à gauche, le formulaire d'édition au centre, et un aperçu à droite :</p>
+
+    <div class="editor-mock">
+      <div class="col-list">
+        <div style="font-size: 9px; color: #555; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Articles</div>
+        <div class="item selected">JPO 2026<br><span style="color: var(--muted); font-size: 9px;">25 mai</span></div>
+        <div class="item">Forum métiers<br><span style="color: var(--muted); font-size: 9px;">14 mars</span></div>
+        <div class="item">Concours…<br><span style="color: var(--muted); font-size: 9px;">21 avr.</span></div>
+        <div class="item">Crèches<br><span style="color: var(--muted); font-size: 9px;">15 déc.</span></div>
+      </div>
+      <div class="col-edit">
+        <div class="field">
+          <div class="field-label">Titre (rose)</div>
+          <div class="field-input">Journée portes ouvertes</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Sous-titre (turquoise)</div>
+          <div class="field-input">Venez nous rencontrer</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Image</div>
+          <div class="field-input" style="color: var(--muted); font-size: 9px;">https://raw.githubusercontent.com/…</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Corps</div>
+          <div class="field-input" style="min-height: 30px;">Rédigez votre article…</div>
+        </div>
+      </div>
+      <div class="col-preview">
+        <div style="text-transform: uppercase; font-size: 9px; color: #555; font-weight: 700; margin-bottom: 6px;">Aperçu</div>
+        <div class="title">Journée portes ouvertes</div><br>
+        <div class="sub">Venez nous rencontrer</div><br><br>
+        <div style="color: #555;">Rédigez votre article…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="step-num">3</span><span class="label">Modifier un article</span></h2>
+    <p class="summary">Cliquez sur un article à gauche pour le sélectionner, puis modifiez les champs au centre. Toutes les modifications sont gardées en mémoire jusqu'à la sauvegarde.</p>
+
+    <p>Champs principaux d'un article :</p>
+    <ul>
+      <li><b>Titre</b> (en <span style="color: var(--rose); font-weight: 700;">rose</span>) — le titre principal de l'article.</li>
+      <li><b>Sous-titre</b> (en <span style="color: var(--turquoise); font-weight: 700;">turquoise</span>) — optionnel.</li>
+      <li><b>Image</b> — URL <code>raw.githubusercontent.com</code>. Utilisez le bouton <b>📎 Importer</b> à côté du champ pour téléverser une image depuis votre Mac (elle ira automatiquement sur GitHub).</li>
+      <li><b>Corps du texte</b> — éditeur riche avec gras, italique, couleurs, listes, liens.</li>
+      <li><b>Bouton</b> — optionnel : texte + URL si l'article doit afficher un bouton d'action.</li>
+      <li><b>Date</b> et <b>Statut</b> (<i>Publié</i> ou <i>Brouillon</i>).</li>
+    </ul>
+
+    <div class="callout">
+      <b>Astuce.</b> Pour <b>réordonner les articles</b>, faites glisser-déposer dans la liste de gauche (icône <code>⋮⋮</code>). L'ordre dans la liste = l'ordre sur le site.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="step-num">4</span><span class="label">Sauvegarder</span></h2>
+    <p class="summary">Le bouton <b>💾 Sauvegarder</b> en haut à droite déclenche <b>deux</b> actions en même temps.</p>
+
+    <ol>
+      <li><b>Téléchargement local</b> d'un fichier <code>apel-site-AAAA-MM-JJ.html</code> dans le dossier <i>Téléchargements</i> de votre Mac. Ce fichier est ce que vous enverrez au webmaster de l'école.</li>
+      <li><b>Commit GitHub</b> qui met à jour la version officielle. Confirmation en bas : <i>« ✅ Sauvegardé : téléchargement + commit GitHub abc1234 »</i>.</li>
+    </ol>
+
+    <div class="callout warn">
+      ⚠️ <b>N'oubliez pas d'envoyer le fichier téléchargé au webmaster</b> de l'école pour qu'il le mette en ligne. Le commit GitHub ne met pas le site en ligne automatiquement — c'est juste une sauvegarde versionnée.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="step-num">5</span><span class="label">Bonus : revenir à une ancienne version</span></h2>
+    <p class="summary">Chaque sauvegarde crée un commit sur GitHub. Vous pouvez restaurer n'importe quelle version précédente.</p>
+
+    <ol>
+      <li>Cliquez sur <b>📂 Changer de fichier</b> en haut à droite pour revenir à l'écran d'accueil.</li>
+      <li>Cliquez sur <b>🕓 Charger une ancienne version (GitHub)</b>.</li>
+      <li>Une liste de toutes les sauvegardes s'affiche, avec date et heure. Cliquez sur celle que vous voulez restaurer.</li>
+      <li>Une bannière jaune apparaît en haut de l'éditeur : <i>« Version historique — sauvegarder écrasera la version actuelle. »</i></li>
+      <li>Si tout est bon, cliquez sur <b>💾 Sauvegarder</b> pour faire de cette version la nouvelle version officielle.</li>
+    </ol>
+
+    <p>👉 Pour plus de détails sur chaque étape, consultez le <a href="userguide.html">guide complet</a>.</p>
+  </div>
+
+  <div class="final-cta">
+    <h3>Prêt à utiliser l'éditeur ?</h3>
+    <p>Tous les changements se font dans le navigateur, en toute sécurité.</p>
+    <a class="btn" href="index.html">📝 Démarrer l'éditeur →</a>
+  </div>
+
+</main>
+
+<footer>
+  <a href="quickstart.html">Démarrage rapide</a>
+  ·
+  <a href="userguide.html">Guide complet</a>
+  ·
+  <a href="index.html">Éditeur APEL</a>
+</footer>
+
+</body>
+</html>

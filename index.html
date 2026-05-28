@@ -355,8 +355,12 @@
     <div id="landing-hint-slot"></div>
 
     <div class="landing-footer">
+      <b>Première fois ici ?</b>
+      Consultez le <a href="quickstart.html" target="_blank" rel="noopener">démarrage rapide</a>
+      ou le <a href="userguide.html" target="_blank" rel="noopener">guide d'utilisation complet</a>.
+      <br><br>
       <b>Comment ça marche ?</b><br>
-      1. Chargez le dernier fichier <code>apel-site-*.html</code><br>
+      1. La dernière version se charge automatiquement depuis GitHub<br>
       2. Ajoutez, modifiez ou réorganisez les articles<br>
       3. Cliquez sur <b>💾 Sauvegarder</b> pour télécharger le nouveau fichier<br>
       4. Envoyez ce fichier à l'école pour qu'ils le mettent en ligne
@@ -373,6 +377,7 @@
       <span class="editor-dot"></span>
       <b>Éditeur APEL <span style="color:var(--turquoise);font-size:11px;background:#ecfeff;padding:2px 7px;border-radius:8px;vertical-align:middle;">v2</span></b>
       <span class="editor-title-sub" id="filename-display">—</span>
+      <a href="userguide.html" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;" title="Ouvre le guide d'utilisation dans un nouvel onglet">📖 Aide</a>
     </div>
     <div class="editor-actions">
       <div class="auth-bar" id="auth-bar">
@@ -1248,11 +1253,11 @@ async function saveFile() {
   const canCommit = getGhToken() && GH_SITE_REPO && !GH_SITE_REPO.startsWith('OWNER/');
   if (!canCommit) {
     markClean();
-    toast(`✅ Fichier téléchargé : apel-site-${stamp}.html` + (getGhToken() ? '' : ' (GitHub non connecté, pas de commit)'));
+    toast(`✅ Téléchargement effectué : apel-site-${stamp}.html` + (getGhToken() ? '' : ' (non connecté, pas d\'enregistrement en ligne)'));
     return;
   }
   try {
-    toast('Commit vers GitHub en cours…');
+    toast('Enregistrement en ligne en cours…');
     const res = await commitSiteToGitHub(htmlOut);
     // Update state so future saves use the latest sha; clear historical flag
     state.loadedHtml = htmlOut;
@@ -1261,11 +1266,11 @@ async function saveFile() {
     state.historicalDate = null;
     renderHistoricalBanner();
     markClean();
-    toast(`✅ Sauvegardé : téléchargement + commit GitHub ${res.shortSha}`);
+    toast('✅ Téléchargement + enregistrement en ligne effectué');
   } catch (err) {
     console.error(err);
     markClean();   // local DL still succeeded
-    toast(`⚠️ Téléchargement OK, mais commit GitHub échoué : ${err.message}`, true);
+    toast(`⚠️ Téléchargement OK, mais enregistrement en ligne échoué : ${err.message}`, true);
   }
 }
 

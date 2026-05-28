@@ -711,16 +711,14 @@ async function listSiteCommits(perPage = 30) {
 }
 
 async function fetchSiteAtCommit(sha) {
-  const token = getGhToken();
-  const headers = { 'Accept': 'application/vnd.github+json' };
-  if (token) headers['Authorization'] = 'token ' + token;
+  // Use raw.githubusercontent.com so we sidestep the Contents API's 1 MB
+  // size limit (it returns empty content for larger files).
   const r = await fetch(
-    `${API_BASE}/repos/${GH_SITE_REPO}/contents/${GH_SITE_FILE}?ref=${sha}`,
-    { headers, cache: 'no-store' }
+    `${RAW_BASE}/${GH_SITE_REPO}/${sha}/${GH_SITE_FILE}?cb=${Date.now()}`,
+    { cache: 'no-store' }
   );
   if (!r.ok) throw new Error('Impossible de charger cette version (HTTP ' + r.status + ').');
-  const j = await r.json();
-  return base64ToUtf8(j.content);
+  return await r.text();
 }
 
 function renderHistoricalBanner() {

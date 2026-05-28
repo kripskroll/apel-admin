@@ -45,7 +45,6 @@
   }
   .btn-ghost-on-rose:hover { background: rgba(255,255,255,0.12); }
 
-  /* Two-column layout: sticky TOC + content */
   .layout {
     max-width: 1080px; margin: -28px auto 60px; padding: 0 24px;
     display: grid; grid-template-columns: 220px 1fr; gap: 36px;
@@ -75,7 +74,7 @@
     color: var(--rose); border-bottom: 2px solid #fce6f1; padding-bottom: 8px;
     margin: 36px 0 14px; font-size: 22px;
   }
-  main.content h2:first-child { margin-top: 0; }
+  main.content h2:first-of-type { margin-top: 0; }
   main.content h3 {
     color: var(--turquoise); margin: 22px 0 8px; font-size: 17px;
   }
@@ -91,19 +90,6 @@
   kbd {
     border: 1px solid #d1d5db; border-bottom-width: 2px;
     background: white; font-size: 0.82em; padding: 1px 5px;
-  }
-  pre {
-    background: #1c1c1e; color: #e5e7eb; padding: 14px 18px;
-    border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5;
-  }
-  pre code { background: transparent; color: inherit; padding: 0; }
-
-  /* Architecture diagram */
-  .arch {
-    background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
-    padding: 18px; margin: 14px 0;
-    font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px;
-    line-height: 1.5; white-space: pre; overflow-x: auto;
   }
 
   /* Mock UI */
@@ -149,7 +135,7 @@
   th { background: #f9fafb; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: #374151; }
   tr:last-child td { border-bottom: none; }
 
-  /* Image-row mock */
+  /* Modal mock */
   .modal-mock {
     background: white; border: 1px solid var(--border); border-radius: 10px;
     padding: 18px 22px; margin: 14px 0;
@@ -166,6 +152,7 @@
   .modal-mock .pill.primary { background: var(--rose); color: white; }
   .modal-mock .pill.ghost { background: white; border: 1px solid #d1d5db; color: #555; }
 
+  /* History modal mock */
   .history-rows {
     border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
   }
@@ -177,9 +164,9 @@
   .history-row.current { background: #ecfdf5; }
   .history-when { font-weight: 600; min-width: 130px; }
   .history-msg { flex: 1; color: #374151; }
-  .history-sha { font-family: monospace; font-size: 11px; color: var(--muted); }
   .history-badge { font-size: 10px; background: var(--turquoise); color: white; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
 
+  /* Historical banner */
   .historical-banner {
     background: #fef3c7; border-left: 4px solid #f59e0b; color: #78350f;
     padding: 10px 16px; font-size: 13px; line-height: 1.5; margin: 12px 0;
@@ -204,13 +191,16 @@
     border-top: 1px solid var(--border); background: white;
   }
   footer a { margin: 0 8px; }
+  footer .admin-link {
+    display: block; margin-top: 14px; font-size: 12px; opacity: 0.7;
+  }
 </style>
 </head>
 <body>
 
 <header class="hero">
-  <h1>📖 Guide d'utilisation complet</h1>
-  <p>Référence détaillée pour utiliser l'éditeur APEL.</p>
+  <h1>📖 Guide d'utilisation</h1>
+  <p>Comment utiliser l'éditeur APEL au quotidien — version détaillée.</p>
   <div class="topnav">
     <a class="btn btn-ghost-on-rose" href="quickstart.html">🚀 Démarrage rapide</a>
     <a class="btn btn-primary" href="index.html">📝 Démarrer l'éditeur →</a>
@@ -222,99 +212,59 @@
   <nav class="toc" aria-label="Sommaire">
     <h4>Sommaire</h4>
     <ol>
-      <li><a href="#vue-densemble">1. Vue d'ensemble</a></li>
-      <li><a href="#connexion">2. Première connexion</a></li>
-      <li><a href="#chargement">3. Chargement automatique</a></li>
+      <li><a href="#vue-densemble">1. À quoi sert l'éditeur</a></li>
+      <li><a href="#connexion">2. Se connecter la première fois</a></li>
+      <li><a href="#chargement">3. Chargement de la page</a></li>
       <li><a href="#editer">4. Modifier un article</a></li>
       <li><a href="#images">5. Ajouter une image</a></li>
-      <li><a href="#sauvegarder">6. Sauvegarder</a></li>
-      <li><a href="#historique">7. Historique des versions</a></li>
-      <li><a href="#depannage">8. Dépannage</a></li>
+      <li><a href="#sauvegarder">6. Sauvegarder et envoyer au webmaster</a></li>
+      <li><a href="#historique">7. Revenir à une ancienne version</a></li>
+      <li><a href="#deconnexion">8. Se déconnecter</a></li>
+      <li><a href="#problemes">9. Problèmes courants</a></li>
     </ol>
   </nav>
 
   <main class="content">
 
-  <h2 id="vue-densemble">1. Vue d'ensemble</h2>
+  <h2 id="vue-densemble">1. À quoi sert l'éditeur</h2>
 
-  <p>L'éditeur APEL est une page web qui permet à 2-3 personnes de l'association de mettre à jour le contenu du site sans connaissances techniques. Les modifications sont stockées sur GitHub (gratuit, fiable, versionné), et un fichier <code>apel-site-AAAA-MM-JJ.html</code> est téléchargé à chaque sauvegarde pour être envoyé au webmaster de l'école.</p>
+  <p>L'éditeur APEL est une page web qui permet à 2-3 personnes de l'association de mettre à jour les <b>articles du site</b> sans connaissances techniques. Vous voyez en direct ce que ça donnera sur le site, vous sauvegardez, et vous envoyez le résultat au webmaster de l'école par e-mail.</p>
 
-  <h3>Les trois dépôts GitHub utilisés</h3>
+  <p>Ce que vous pouvez faire :</p>
+  <ul>
+    <li><b>Modifier</b> les articles existants (titre, sous-titre, texte, image, bouton, date, statut).</li>
+    <li><b>Ajouter</b> de nouveaux articles.</li>
+    <li><b>Supprimer</b> des articles.</li>
+    <li><b>Réordonner</b> les articles par glisser-déposer.</li>
+    <li><b>Téléverser</b> une image depuis votre ordinateur — elle est automatiquement compressée et hébergée pour vous.</li>
+    <li><b>Revenir</b> à n'importe quelle version précédente du site si vous voulez annuler des changements.</li>
+  </ul>
 
-  <table>
-    <thead><tr><th>Dépôt</th><th>Contenu</th><th>Rôle</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>apel-admin</code></td>
-        <td>L'éditeur lui-même (cette page)</td>
-        <td>Hébergé via GitHub Pages à <code>https://kripskroll.github.io/apel-admin/</code></td>
-      </tr>
-      <tr>
-        <td><code>apel-site</code></td>
-        <td>Le fichier <code>apel-site.html</code> du site</td>
-        <td>Chaque sauvegarde y crée un commit. C'est la source unique de vérité.</td>
-      </tr>
-      <tr>
-        <td><code>apel-images</code></td>
-        <td>Toutes les images des articles</td>
-        <td>Les URLs <code>raw.githubusercontent.com</code> sont insérées dans les articles.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="arch">┌──────────────────────┐         ┌──────────────────────┐
-│ Navigateur (votre   │  HTTPS  │ GitHub               │
-│  Mac)                │ ◄─────► │  ┌──────────────────┐│
-│                      │         │  │ apel-site.html   ││  ← chargé à l'ouverture
-│  ┌─────────────────┐ │         │  │ (versionné)      ││  ← commité à la sauvegarde
-│  │ admin-apel-v2   │ │         │  └──────────────────┘│
-│  │ (HTML+JS+style) │ │         │  ┌──────────────────┐│
-│  └─────────────────┘ │         │  │ apel-images/...  ││  ← images téléversées
-│                      │         │  └──────────────────┘│
-│  Token PAT en        │         └──────────────────────┘
-│  localStorage        │                  │
-└──────────────────────┘                  │
-                                          ▼
-                              Site public (école)</div>
-
-  <h3>Modèle de partage</h3>
-
-  <p>Les 2-3 administrateurs partagent <b>un seul compte GitHub</b> (le même que le compte Google Workspace de l'association). Chaque administrateur génère un jeton (PAT) à partir de ce compte, et ce jeton reste sur son propre Mac. Pas d'invitation, pas de gestion d'utilisateurs.</p>
+  <div class="callout">
+    <b>Plusieurs personnes, une seule version.</b> Les 2-3 personnes de l'équipe APEL travaillent toutes sur le <b>même site partagé</b>. Quand l'une d'entre vous sauvegarde, les autres récupèrent automatiquement la nouvelle version au chargement suivant.
+  </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="connexion">2. Première connexion</h2>
+  <h2 id="connexion">2. Se connecter la première fois</h2>
 
-  <p>Avant de pouvoir sauvegarder, il faut créer un jeton d'accès personnel (Personal Access Token, ou <b>PAT</b>) côté GitHub, puis le coller dans l'éditeur.</p>
+  <p>L'éditeur enregistre vos modifications sur un service en ligne sécurisé. Pour autoriser votre ordinateur à enregistrer, il faut <b>une seule fois</b> coller un <b>code de connexion</b> que votre administrateur APEL vous a fourni.</p>
 
-  <h3>2.1 Générer le PAT sur GitHub</h3>
+  <h3>2.1 Le code de connexion</h3>
 
-  <p>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>. Connectez-vous au compte GitHub partagé de l'association si demandé.</p>
+  <p>Le code est une longue chaîne de caractères qui commence par <code>github_pat_</code>. Par exemple :</p>
 
-  <p>Remplissez le formulaire :</p>
+  <p><code style="font-size: 12px; word-break: break-all;">github_pat_11ABCDEFG0xxxxxxxxxxxxx_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy</code></p>
 
-  <table>
-    <thead><tr><th>Champ</th><th>Valeur</th></tr></thead>
-    <tbody>
-      <tr><td><b>Token name</b></td><td><code>APEL admin</code></td></tr>
-      <tr><td><b>Expiration</b></td><td><code>Custom...</code> → dans 11 mois (max 366 jours)</td></tr>
-      <tr><td><b>Description</b></td><td>Optionnel — <i>« Jeton pour l'éditeur APEL sur le Mac de Jean »</i></td></tr>
-      <tr><td><b>Resource owner</b></td><td>Le compte GitHub partagé (par exemple <code>kripskroll</code>)</td></tr>
-      <tr><td><b>Repository access</b></td><td>⦿ <b>Only select repositories</b> — sélectionnez <code>apel-images</code> ET <code>apel-site</code></td></tr>
-      <tr><td><b>Repository permissions → Contents</b></td><td><b>Read and write</b></td></tr>
-      <tr><td><i>Toutes les autres permissions</i></td><td>Laissez sur <i>No access</i></td></tr>
-    </tbody>
-  </table>
-
-  <p>Cliquez sur <b>Generate token</b>. La page affiche votre nouveau jeton, qui commence par <code>github_pat_…</code>. <b>Copiez-le immédiatement</b> — il ne sera plus affiché.</p>
+  <p>C'est l'équivalent d'un mot de passe d'application. Toute l'équipe APEL utilise <b>le même code</b> — votre administrateur s'occupe de le distribuer.</p>
 
   <div class="callout warn">
-    ⚠️ <b>Ce jeton est un mot de passe.</b> Ne le partagez pas par email/Slack/Discord. Si vous voulez le partager entre administrateurs, mettez-le dans le coffre de mots de passe partagé de l'association (1Password, Bitwarden, etc.).
+    🔒 <b>Ce code est confidentiel.</b> Ne le partagez pas en dehors de l'équipe APEL (pas de copie sur les réseaux sociaux, e-mails publics, etc.). Si vous pensez qu'il a été compromis, prévenez votre administrateur — il en générera un nouveau.
   </div>
 
-  <h3>2.2 Coller le PAT dans l'éditeur</h3>
+  <h3>2.2 Coller le code dans l'éditeur</h3>
 
-  <p>Ouvrez <a href="index.html">l'éditeur APEL</a>. En haut à droite, vous voyez la barre de connexion :</p>
+  <p>En haut à droite de l'éditeur, vous voyez la barre de connexion :</p>
 
   <div class="mock-ui">
     <div class="mock-ui-titlebar">
@@ -324,7 +274,7 @@
     <div class="mock-ui-body" style="background: #f3f4f6; padding: 8px 12px; display: flex; align-items: center; gap: 10px; font-size: 12px;">
       <div style="display: flex; align-items: center; gap: 6px; background: #f3f4f6; padding: 4px 10px; border-radius: 6px;">
         <span style="width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; display: inline-block;"></span>
-        Non connecté à GitHub
+        Non connecté
         <span style="background: white; border: 1px solid #d1d5db; padding: 2px 8px; border-radius: 5px; font-weight: 600;">Connexion</span>
       </div>
       <div style="margin-left: auto; color: #6b7280; font-size: 11px;">Synchronisé</div>
@@ -337,12 +287,6 @@
   <div class="modal-mock">
     <h4>Connexion à GitHub</h4>
     <p class="lead">Pour téléverser des images, il faut un jeton GitHub (Personal Access Token, PAT). Une seule fois par appareil.</p>
-    <ol style="margin: 0 0 12px; font-size: 13px;">
-      <li>Ouvrez <i>la page de génération du jeton</i> (déjà fait à l'étape précédente)</li>
-      <li>Resource owner = compte de l'association. Repository access = Only select repositories → <code>apel-images</code> et <code>apel-site</code></li>
-      <li>Repository permissions → Contents : Read and write</li>
-      <li>Collez le jeton ci-dessous</li>
-    </ol>
     <input type="text" style="width:100%; padding: 8px 10px; font-family: ui-monospace, monospace; font-size: 12px; border: 1px solid #d1d5db; border-radius: 5px; background: #fafbfc; color: #888;" placeholder="github_pat_..." value="github_pat_••••••••••••••••" readonly>
     <div class="actions">
       <span class="pill ghost">Annuler</span>
@@ -350,225 +294,228 @@
     </div>
   </div>
 
-  <p>Une fois validé, la barre devient verte avec votre identifiant GitHub. À partir de maintenant, l'éditeur peut sauvegarder.</p>
+  <ol>
+    <li>Collez votre code dans le champ.</li>
+    <li>Cliquez sur <b>Se connecter</b>.</li>
+    <li>La barre devient verte et affiche un nom d'identifiant. C'est fait.</li>
+  </ol>
 
   <div class="callout">
-    <b>Combien de fois faut-il faire ça ?</b> Une seule fois par navigateur, sur chaque Mac où vous utilisez l'éditeur. Le jeton est stocké dans le <code>localStorage</code> du navigateur — il survit aux redémarrages.
+    <b>Une seule fois suffit.</b> Le code est mémorisé par votre navigateur. Tant que vous ne vous déconnectez pas et que vous ne videz pas les données du navigateur, vous restez connecté.
+  </div>
+
+  <div class="callout warn">
+    🖥️ <b>Si vous utilisez un autre ordinateur</b> (par exemple votre Mac à la maison <i>et</i> celui de l'association), il faudra refaire la connexion sur chaque ordinateur. Mais une seule fois par ordinateur.
   </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="chargement">3. Chargement automatique</h2>
+  <h2 id="chargement">3. Chargement de la page</h2>
 
-  <p>À chaque ouverture de la page, l'éditeur essaie de récupérer la dernière version du site depuis GitHub. C'est ce qui garantit que vous travaillez toujours sur la version la plus récente, même si un autre administrateur a sauvegardé depuis un autre Mac.</p>
+  <p>À chaque ouverture de l'éditeur, la dernière version du site est récupérée automatiquement. C'est ce qui garantit que vous travaillez toujours sur la version la plus à jour, même si quelqu'un d'autre a modifié quelque chose depuis votre dernière visite.</p>
 
-  <h3>Le délai initial (~10 secondes)</h3>
+  <h3>Le délai d'attente</h3>
 
-  <p>Le fichier <code>apel-site.html</code> fait environ 2 Mo (à cause des images historiques intégrées). Sa récupération + son analyse prennent quelques secondes. Vous voyez l'écran d'accueil pendant ce temps :</p>
+  <p>Le fichier du site est un peu volumineux (environ 2 Mo), donc son chargement prend <b>environ 10 secondes</b>. Pendant ce temps, vous voyez un écran d'accueil :</p>
 
   <div class="mock-ui">
     <div class="mock-ui-body" style="text-align: center; padding: 30px;">
       <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--rose); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; margin-bottom: 12px;">A</div>
       <div style="color: var(--rose); font-size: 20px; font-weight: 700; margin-bottom: 6px;">Éditeur d'articles APEL</div>
-      <div style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Chargez un fichier apel-site-*.html pour le modifier.</div>
-      <div style="border: 1px dashed #d1d5db; border-radius: 10px; padding: 20px; color: #6b7280; font-size: 13px;">
-        📄 <i>Chargement en cours depuis GitHub…</i>
-      </div>
+      <div style="color: var(--muted); font-size: 13px;">Chargement en cours…</div>
     </div>
   </div>
 
   <div class="callout warn">
-    ⏱️ <b>Ne rechargez pas la page pendant ces 10 secondes.</b> Si l'écran d'accueil reste affiché au-delà de 20 secondes, c'est qu'il y a un problème — voir la section <a href="#depannage">Dépannage</a>.
+    ⏱️ <b>Ne rechargez pas la page</b> pendant ces 10 secondes — vous repartiriez de zéro. Si l'écran d'accueil reste affiché <b>plus de 20 secondes</b>, voir <a href="#problemes">Problèmes courants</a>.
   </div>
-
-  <h3>Quand le chargement réussit</h3>
-
-  <p>Vous arrivez directement sur l'éditeur, avec tous les articles déjà chargés. L'indicateur en haut indique <code>apel-site.html</code> comme nom de fichier.</p>
-
-  <h3>Quand le chargement échoue</h3>
-
-  <p>L'écran d'accueil reste visible avec un message expliquant l'erreur :</p>
-  <ul>
-    <li><b>404 — Aucune version sur GitHub</b> : le dépôt <code>apel-site</code> est vide. Ne devrait arriver qu'à la toute première utilisation, jamais en usage normal.</li>
-    <li><b>Erreur réseau</b> : votre connexion Internet est coupée. Reconnectez-vous et rechargez.</li>
-  </ul>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
   <h2 id="editer">4. Modifier un article</h2>
 
-  <h3>Sélectionner</h3>
-  <p>Cliquez sur un article dans la liste de gauche. Le formulaire central se remplit avec ses données, et l'aperçu à droite se met à jour en temps réel.</p>
+  <h3>4.1 Sélectionner un article</h3>
+  <p>Cliquez sur un article dans la liste de gauche. Le formulaire central se remplit avec ses données, et l'aperçu à droite se met à jour en direct.</p>
 
-  <h3>Champs disponibles</h3>
+  <h3>4.2 Les champs disponibles</h3>
 
   <table>
     <thead><tr><th>Champ</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td><b>Titre</b></td><td>En <span style="color: var(--rose); font-weight: 700;">rose</span> sur le site. Obligatoire.</td></tr>
-      <tr><td><b>Date</b></td><td>Date affichée dans la liste et tri.</td></tr>
-      <tr><td><b>Statut</b></td><td><code>Publié</code> = visible sur le site. <code>Brouillon</code> = masqué.</td></tr>
-      <tr><td><b>Sous-titre</b></td><td>En <span style="color: var(--turquoise); font-weight: 700;">turquoise</span>. Optionnel.</td></tr>
-      <tr><td><b>Image</b></td><td>URL d'une image. Voir <a href="#images">section 5</a> pour téléverser.</td></tr>
-      <tr><td><b>Corps du texte</b></td><td>Éditeur riche : <b>B</b> gras, <i>I</i> italique, listes, alignement, couleurs (rose / turquoise), liens.</td></tr>
-      <tr><td><b>Bouton</b></td><td>Optionnel. Texte du bouton + URL. Utile pour <i>« S'inscrire »</i>, <i>« Plus d'infos »</i>, etc.</td></tr>
+      <tr><td><b>Titre</b></td><td>Le titre principal de l'article. Affiché en <span style="color: var(--rose); font-weight: 700;">rose</span> sur le site.</td></tr>
+      <tr><td><b>Date</b></td><td>Date affichée à côté du titre, et sert au tri.</td></tr>
+      <tr><td><b>Statut</b></td><td><b>Publié</b> = visible sur le site. <b>Brouillon</b> = caché, visible uniquement dans l'éditeur.</td></tr>
+      <tr><td><b>Sous-titre</b></td><td>Affiché en <span style="color: var(--turquoise); font-weight: 700;">turquoise</span> sous le titre. Optionnel.</td></tr>
+      <tr><td><b>Image</b></td><td>L'image principale de l'article. Voir <a href="#images">section 5</a>.</td></tr>
+      <tr><td><b>Corps du texte</b></td><td>Le contenu de l'article. Vous pouvez mettre du <b>gras</b>, <i>italique</i>, des listes, des liens, et utiliser les couleurs rose/turquoise.</td></tr>
+      <tr><td><b>Bouton</b></td><td>Optionnel : un bouton d'action (ex. <i>« S'inscrire »</i>, <i>« En savoir plus »</i>) qui pointe vers une page externe.</td></tr>
     </tbody>
   </table>
 
-  <h3>Créer / supprimer / réordonner</h3>
+  <h3>4.3 Créer, supprimer, réordonner</h3>
 
   <ul>
-    <li><b>Créer</b> : bouton <b>+ Nouvel article</b> en haut de la liste. Apparaît tout en haut, statut <i>Brouillon</i> par défaut.</li>
-    <li><b>Supprimer</b> : icône 🗑 sur l'article. Confirmation demandée.</li>
-    <li><b>Réordonner</b> : glisser-déposer avec l'icône <code>⋮⋮</code>. L'ordre dans la liste = l'ordre d'affichage sur le site.</li>
+    <li><b>Créer</b> : bouton <b>+ Nouvel article</b> en haut de la liste. Il apparaît tout en haut, statut <i>Brouillon</i> par défaut.</li>
+    <li><b>Supprimer</b> : icône 🗑 sur l'article dans la liste. Une confirmation est demandée.</li>
+    <li><b>Réordonner</b> : glissez-déposez les articles dans la liste (utilisez l'icône <code>⋮⋮</code> à gauche de chaque article). L'ordre dans la liste = l'ordre sur le site.</li>
   </ul>
 
   <div class="callout">
-    <b>L'indicateur « ● Modifications non sauvegardées »</b> en haut, à côté du bouton Sauvegarder, devient orange dès que vous modifiez quoi que ce soit. Tant qu'il est là, vos changements ne sont pas sur GitHub.
+    <b>L'indicateur orange « ● Modifications non sauvegardées »</b> apparaît en haut dès que vous modifiez quoi que ce soit. Tant qu'il est affiché, vos changements ne sont pas enregistrés. Pensez à cliquer sur <b>💾 Sauvegarder</b> avant de fermer la page.
   </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="images">5. Ajouter une image à un article</h2>
+  <h2 id="images">5. Ajouter une image</h2>
 
-  <p>Deux méthodes possibles :</p>
-
-  <h3>5.1 Importer depuis votre Mac (recommandé)</h3>
+  <h3>5.1 Importer une image depuis votre ordinateur (recommandé)</h3>
 
   <ol>
     <li>Cliquez sur le bouton <b>📎 Importer</b> à côté du champ Image.</li>
     <li>Choisissez une image sur votre Mac (JPG, PNG, etc.).</li>
-    <li>L'éditeur la <b>compresse automatiquement</b> en WebP (largeur max 1600 px, qualité 85%) — typiquement de 3 Mo à 200 Ko.</li>
-    <li>L'image est ensuite téléversée sur le dépôt <code>apel-images</code> de GitHub.</li>
-    <li>L'URL <code>raw.githubusercontent.com/…/2026-MM-JJ-titre-xxxxxx.webp</code> est automatiquement collée dans le champ Image.</li>
-    <li>L'aperçu à droite affiche immédiatement la nouvelle image.</li>
+    <li>L'éditeur compresse automatiquement l'image (qualité préservée, mais beaucoup plus légère).</li>
+    <li>L'image est ensuite envoyée vers l'espace de stockage en ligne.</li>
+    <li>L'adresse de l'image est automatiquement collée dans le champ. L'aperçu se met à jour immédiatement.</li>
   </ol>
 
-  <p>Trois messages successifs en bas confirment les étapes : <i>« Compression de l'image… »</i>, <i>« Téléversement vers GitHub… »</i>, <i>« ✅ Image téléversée »</i>.</p>
+  <p>Pendant l'opération, des messages s'affichent en bas de la page : <i>« Compression de l'image… »</i>, puis <i>« Téléversement… »</i>, puis <i>« ✅ Image téléversée »</i>. Comptez quelques secondes selon la taille de votre image.</p>
 
-  <h3>5.2 Coller une URL existante</h3>
+  <h3>5.2 Coller une adresse d'image existante</h3>
 
-  <p>Si vous avez déjà l'URL d'une image (par exemple <code>https://raw.githubusercontent.com/…</code> ou n'importe quel autre lien public), collez-la directement dans le champ Image. L'aperçu se met à jour.</p>
+  <p>Si vous avez déjà l'adresse Internet d'une image (par exemple une image trouvée en ligne), vous pouvez la coller directement dans le champ Image. L'aperçu se met à jour.</p>
 
   <div class="callout warn">
-    ⚠️ <b>N'utilisez pas d'URLs venant de Google Drive ou OneDrive partagés.</b> Ces URLs ne sont pas des liens directs vers l'image et le site les affichera comme une page web entière. Utilisez le bouton <b>Importer</b> à la place.
+    ⚠️ <b>Évitez les liens Google Drive ou OneDrive partagés</b> : ces liens pointent vers des pages d'aperçu, pas vers l'image elle-même. Le site n'arrivera pas à afficher l'image. Utilisez plutôt le bouton <b>Importer</b>.
   </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="sauvegarder">6. Sauvegarder</h2>
+  <h2 id="sauvegarder">6. Sauvegarder et envoyer au webmaster</h2>
 
-  <p>Le bouton <b>💾 Sauvegarder</b> en haut à droite déclenche <b>deux actions</b> en simultané :</p>
-
-  <ol>
-    <li><b>Téléchargement local</b> d'un fichier <code>apel-site-AAAA-MM-JJ.html</code> dans le dossier <i>Téléchargements</i> de votre Mac.</li>
-    <li><b>Commit GitHub</b> du fichier dans le dépôt <code>apel-site</code> (un nouveau commit s'ajoute à l'historique).</li>
-  </ol>
-
-  <p>Message de confirmation : <i>« ✅ Sauvegardé : téléchargement + commit GitHub abc1234 »</i>.</p>
-
-  <h3>Workflow complet : de l'édition à la mise en ligne</h3>
+  <p>Une fois vos modifications terminées, cliquez sur <b>💾 Sauvegarder</b> en haut à droite. <b>Deux actions</b> se déclenchent en même temps :</p>
 
   <ol>
-    <li>Vous modifiez les articles dans l'éditeur.</li>
-    <li>Vous cliquez sur <b>💾 Sauvegarder</b>.</li>
-    <li>Le fichier <code>apel-site-AAAA-MM-JJ.html</code> arrive dans vos Téléchargements.</li>
-    <li><b>Vous envoyez ce fichier au webmaster de l'école par email.</b></li>
-    <li>Le webmaster le met en ligne sur le serveur du site.</li>
+    <li>📥 Un fichier <code>apel-site-AAAA-MM-JJ.html</code> arrive dans votre dossier <b>Téléchargements</b>.</li>
+    <li>☁️ Une copie de sécurité est sauvegardée en ligne — c'est ce qui sera rechargé la prochaine fois que vous (ou un autre membre de l'équipe) ouvrirez l'éditeur.</li>
   </ol>
 
-  <div class="callout">
-    <b>Pourquoi le double mécanisme ?</b> Le commit GitHub est votre filet de sécurité (historique versionné, accessible aux 2-3 administrateurs depuis n'importe quel Mac). Le fichier téléchargé est ce qui finit en ligne — c'est ce que vous envoyez au webmaster.
+  <p>Message de confirmation en bas de la page : <i>« ✅ Sauvegardé : téléchargement + commit en ligne »</i>.</p>
+
+  <h3>L'étape finale : envoyer au webmaster</h3>
+
+  <p>La sauvegarde en ligne est juste un filet de sécurité. Pour que vos modifications apparaissent <b>sur le vrai site</b>, il faut :</p>
+
+  <ol>
+    <li>Récupérer le fichier <code>apel-site-AAAA-MM-JJ.html</code> dans votre dossier Téléchargements.</li>
+    <li>L'envoyer <b>par e-mail au webmaster de l'école</b>.</li>
+    <li>Le webmaster met le fichier en ligne sur le serveur du site (ce n'est pas vous qui le faites).</li>
+  </ol>
+
+  <div class="callout warn">
+    📧 <b>N'oubliez pas l'e-mail.</b> Sans cet envoi au webmaster, vos modifications restent en sauvegarde mais n'apparaissent pas sur le site public.
   </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="historique">7. Historique des versions</h2>
+  <h2 id="historique">7. Revenir à une ancienne version</h2>
 
-  <p>Chaque sauvegarde crée un commit sur GitHub. Vous pouvez restaurer n'importe quelle version précédente.</p>
+  <p>Chaque fois que quelqu'un de l'équipe sauvegarde, une copie est conservée en ligne. Vous pouvez récupérer n'importe laquelle de ces copies si vous voulez annuler des changements ou retrouver un ancien article.</p>
 
-  <h3>Ouvrir l'historique</h3>
+  <h3>7.1 Voir la liste des versions</h3>
 
   <ol>
-    <li>Si vous êtes dans l'éditeur, cliquez sur <b>📂 Changer de fichier</b> pour revenir à l'écran d'accueil.</li>
-    <li>Cliquez sur <b>🕓 Charger une ancienne version (GitHub)</b>.</li>
-    <li>Une fenêtre liste toutes les sauvegardes, de la plus récente à la plus ancienne :</li>
+    <li>Si vous êtes dans l'éditeur, cliquez sur <b>📂 Changer de fichier</b> en haut pour revenir à l'écran d'accueil.</li>
+    <li>Cliquez sur <b>🕓 Charger une ancienne version</b>.</li>
   </ol>
+
+  <p>Une fenêtre affiche toutes les sauvegardes, de la plus récente à la plus ancienne :</p>
 
   <div class="modal-mock">
     <h4>Versions du site sur GitHub</h4>
-    <p class="lead">Cliquez sur une version pour la charger dans l'éditeur.</p>
+    <p class="lead">Cliquez sur une version pour la charger.</p>
     <div class="history-rows">
       <div class="history-row current">
         <span class="history-when">28/05/2026 14:32</span>
-        <span class="history-msg">Save apel-site.html 2026-05-28 14:32</span>
-        <span class="history-sha">a97bfcf</span>
+        <span class="history-msg">Save 2026-05-28 14:32</span>
         <span class="history-badge">Actuelle</span>
       </div>
       <div class="history-row">
         <span class="history-when">28/05/2026 13:25</span>
-        <span class="history-msg">Save apel-site.html 2026-05-28 13:25</span>
-        <span class="history-sha">b3f4aa0</span>
+        <span class="history-msg">Save 2026-05-28 13:25</span>
       </div>
       <div class="history-row">
         <span class="history-when">27/05/2026 19:20</span>
-        <span class="history-msg">Save apel-site.html 2026-05-27 19:20</span>
-        <span class="history-sha">e91d22c</span>
+        <span class="history-msg">Save 2026-05-27 19:20</span>
       </div>
     </div>
   </div>
 
-  <h3>Charger une version historique</h3>
+  <h3>7.2 Charger et restaurer</h3>
 
-  <p>Cliquez sur la ligne souhaitée. Le contenu est chargé dans l'éditeur, et une bannière jaune apparaît en haut :</p>
+  <p>Cliquez sur la ligne correspondant à la date que vous voulez. Le contenu de cette version est chargé dans l'éditeur. Une bannière jaune apparaît en haut :</p>
 
   <div class="historical-banner">
     ⚠️ <b>Version historique</b> — 28/05/2026 13:25. Sauvegarder écrasera la version actuelle sur GitHub.
   </div>
 
-  <p>À partir de là, deux choix :</p>
+  <p>Deux choix s'offrent à vous :</p>
   <ul>
-    <li><b>Restaurer cette version</b> : cliquez sur <b>💾 Sauvegarder</b>. Un nouveau commit est créé avec ce contenu, qui devient la nouvelle version officielle.</li>
+    <li><b>Restaurer cette version</b> : cliquez sur <b>💾 Sauvegarder</b>. Cette ancienne version devient la nouvelle version officielle (et vous récupérez aussi un fichier à envoyer au webmaster).</li>
     <li><b>Annuler</b> : cliquez sur <b>Revenir à la dernière version</b> dans la bannière jaune.</li>
   </ul>
 
   <div class="callout">
-    <b>Aucune version n'est jamais perdue.</b> Restaurer une ancienne version crée un nouveau commit par-dessus — l'historique précédent reste accessible.
+    <b>Bonne nouvelle : aucune version n'est jamais perdue.</b> Même si vous restaurez une ancienne version, la version actuelle reste dans l'historique — vous pourriez la restaurer à son tour plus tard si besoin.
   </div>
 
   <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
 
-  <h2 id="depannage">8. Dépannage</h2>
+  <h2 id="deconnexion">8. Se déconnecter</h2>
 
-  <h3>« Le dépôt du site n'est pas configuré » ou « Pas de jeton GitHub »</h3>
-  <p>Vous n'êtes pas connecté à GitHub. Cliquez sur <b>Connexion</b> en haut à droite et collez votre PAT (voir <a href="#connexion">section 2</a>).</p>
+  <p>Si vous voulez retirer votre code de connexion de cet ordinateur (par exemple parce que quelqu'un d'autre va l'utiliser, ou parce que vous êtes sur un Mac partagé) :</p>
 
-  <h3>« Jeton invalide (HTTP 401) »</h3>
-  <p>Le PAT a expiré (durée de vie limitée à 366 jours sur GitHub). Allez sur <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>, régénérez le jeton, et collez le nouveau dans l'éditeur (bouton Connexion).</p>
+  <ol>
+    <li>Cliquez sur <b>Déconnexion</b> dans la barre en haut.</li>
+    <li>Confirmez.</li>
+  </ol>
 
-  <h3>« Commit refusé : HTTP 403 — Resource not accessible by personal access token »</h3>
-  <p>Le PAT existant ne donne pas accès à un des dépôts (probablement <code>apel-site</code> a été ajouté après coup). Allez dans les paramètres du PAT et ajoutez le dépôt manquant dans <b>Repository access</b> → <b>Only select repositories</b>.</p>
+  <p>Le code est effacé du navigateur. La prochaine personne devra recoller un code pour pouvoir sauvegarder.</p>
 
-  <h3>« Le fichier a été modifié sur GitHub entre-temps »</h3>
-  <p>Un autre administrateur a sauvegardé depuis un autre Mac pendant que vous éditiez. Rechargez la page pour récupérer leur version (vos modifications locales seront perdues), puis refaites vos changements.</p>
+  <div class="callout">
+    <b>Note :</b> la déconnexion empêche de <b>sauvegarder</b>, mais on peut toujours <b>consulter</b> les articles (le site est public en lecture).
+  </div>
+
+  <hr style="border: none; border-top: 1px solid var(--border); margin: 30px 0;">
+
+  <h2 id="problemes">9. Problèmes courants</h2>
 
   <h3>L'écran d'accueil reste affiché plus de 20 secondes</h3>
-  <p>Le chargement depuis GitHub a échoué silencieusement. Vérifiez :</p>
+  <p>Le chargement depuis le service en ligne n'arrive pas à se terminer. Vérifiez :</p>
   <ul>
-    <li>Votre connexion Internet est-elle active ?</li>
-    <li>Ouvrez la <a href="https://github.com/kripskroll/apel-site" target="_blank" rel="noopener">page du dépôt</a> dans un autre onglet : est-elle accessible ?</li>
-    <li>Si oui, rechargez l'éditeur avec <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> pour vider le cache.</li>
+    <li>Votre connexion Internet fonctionne-t-elle ? (essayez d'ouvrir un autre site).</li>
+    <li>Rechargez la page avec <kbd>Cmd</kbd>+<kbd>R</kbd>.</li>
+    <li>Si ça persiste, contactez votre administrateur APEL.</li>
   </ul>
 
-  <h3>L'image téléversée n'apparaît pas dans l'aperçu</h3>
-  <p>Vérifiez la console du navigateur (<kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>). Si l'erreur indique <b>403 Forbidden</b> sur l'upload, le PAT n'a pas accès à <code>apel-images</code> — voir l'erreur 403 ci-dessus.</p>
+  <h3>« Jeton invalide » ou « Code refusé »</h3>
+  <p>Votre code de connexion n'est plus valide. Les codes ont une durée de vie limitée (un an environ) — il a probablement expiré. Demandez un nouveau code à votre administrateur APEL et collez-le via le bouton <b>Connexion</b>.</p>
 
-  <h3>Je veux me déconnecter (autre personne va utiliser ce Mac)</h3>
-  <p>Cliquez sur <b>Déconnexion</b> dans la barre en haut. Le PAT est effacé du <code>localStorage</code> de ce navigateur. La personne suivante devra recoller un PAT pour pouvoir sauvegarder.</p>
+  <h3>« Le fichier a été modifié entre-temps »</h3>
+  <p>Quelqu'un d'autre dans l'équipe a sauvegardé une nouvelle version pendant que vous éditiez. Pour éviter de perdre son travail, l'éditeur refuse votre sauvegarde.</p>
+  <p><b>Que faire :</b> rechargez la page (vos modifications locales seront perdues, malheureusement), puis refaites vos changements sur la nouvelle version. Pensez à coordonner avec votre équipe pour ne pas éditer en même temps.</p>
+
+  <h3>L'image que je viens d'importer n'apparaît pas dans l'aperçu</h3>
+  <p>Vérifiez que vous êtes bien connecté (la barre en haut doit être verte). Si l'image semble bloquée à <i>« Téléversement… »</i>, votre connexion Internet est peut-être lente — patientez encore quelques secondes.</p>
+
+  <h3>J'ai cliqué sur Sauvegarder mais aucun fichier n'apparaît dans Téléchargements</h3>
+  <p>Vérifiez que votre navigateur n'a pas bloqué le téléchargement (icône en haut à droite de Chrome ou Safari). Cliquez sur <b>Autoriser</b> et réessayez.</p>
+
+  <h3>Une question qui n'est pas listée ici</h3>
+  <p>Contactez votre administrateur APEL. Si c'est un souci technique, il pourra consulter le <a href="admin-guide.html">guide administrateur</a>.</p>
 
   <div class="final-cta">
-    <h3>Tout est clair ?</h3>
-    <p>Vous savez maintenant tout ce qu'il faut pour utiliser l'éditeur.</p>
+    <h3>Vous êtes prêt(e) !</h3>
+    <p>Tout est dans vos mains pour faire vivre le site APEL.</p>
     <a class="btn" href="index.html">📝 Démarrer l'éditeur →</a>
   </div>
 
@@ -578,9 +525,12 @@
 <footer>
   <a href="quickstart.html">Démarrage rapide</a>
   ·
-  <a href="userguide.html">Guide complet</a>
+  <a href="userguide.html">Guide d'utilisation</a>
   ·
   <a href="index.html">Éditeur APEL</a>
+  <span class="admin-link">
+    Vous administrez l'éditeur ? Voir le <a href="admin-guide.html">guide administrateur</a>.
+  </span>
 </footer>
 
 </body>

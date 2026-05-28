@@ -606,6 +606,21 @@ function renderAuthBar() {
     label.textContent = 'Non connecté à GitHub';
     btn.textContent = 'Connexion';
   }
+  // Reflect connection state on the Sauvegarder button
+  const saveBtn = document.getElementById('btn-save');
+  if (saveBtn) {
+    if (user) {
+      saveBtn.innerHTML = '💾 Sauvegarder (télécharger)';
+      saveBtn.removeAttribute('title');
+    } else {
+      saveBtn.innerHTML = '💾 Sauvegarder (sans copie en ligne)';
+      saveBtn.title = 'Vous n\'êtes pas connecté à GitHub. Le fichier sera téléchargé mais aucune copie ne sera enregistrée en ligne.';
+    }
+  }
+  // Re-render the form so the Importer button reflects auth state
+  if (state.selectedId && document.getElementById('edit-panel') && !document.getElementById('edit-panel').classList.contains('empty-msg')) {
+    renderForm();
+  }
 }
 
 function openAuthModal() {
@@ -1045,13 +1060,19 @@ function renderForm() {
         <label>Image</label>
         <div class="image-row">
           <input type="url" data-k="image" value="${esc(a.image)}" placeholder="https://raw.githubusercontent.com/... (URL)" style="flex:1;">
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer; white-space:nowrap;">
-            📎 Importer
-            <input type="file" accept="image/*" style="display:none;" data-upload>
-          </label>
+          ${getGhToken()
+            ? `<label class="btn btn-ghost btn-sm" style="cursor:pointer; white-space:nowrap;">
+                 📎 Importer
+                 <input type="file" accept="image/*" style="display:none;" data-upload>
+               </label>`
+            : `<button type="button" class="btn btn-ghost btn-sm" id="btn-upload-locked" style="white-space:nowrap; opacity:0.55; cursor:not-allowed;" title="Connectez-vous à GitHub d'abord. Le bouton Connexion est en haut à droite.">
+                 🔒 Importer
+               </button>`}
         </div>
         ${a.image ? `<div class="img-preview"><img src="${esc(a.image)}" alt=""></div>` : ''}
-        <p class="hint">Privilégiez une URL (plus léger).</p>
+        ${getGhToken()
+          ? `<p class="hint">Collez une URL <code>raw.githubusercontent.com</code> ou cliquez sur <b>📎 Importer</b> pour téléverser une image depuis votre Mac.</p>`
+          : `<p class="hint">🔒 <b>Téléverser une image nécessite d'être connecté à GitHub.</b> Cliquez sur <b>Connexion</b> en haut à droite. (Vous pouvez quand même coller une URL d'image existante dans le champ ci-dessus.)</p>`}
       </div>
       <div class="form-field">
         <label>Corps du texte</label>
@@ -1165,6 +1186,11 @@ function attachFormHandlers(a) {
         renderPreview(a);
       });
     });
+  });
+
+  // Locked import button (shown when not signed in)
+  panel.querySelector('#btn-upload-locked')?.addEventListener('click', () => {
+    toast('Connectez-vous à GitHub d\'abord pour téléverser une image. Bouton « Connexion » en haut à droite.', true);
   });
 
   // Image upload (v2) → resize + push to GitHub, store the raw URL

@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>APEL — Éditeur d'articles v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --rose: rgb(206, 0, 127);
+    --rose-dark: rgb(178, 0, 110);
+    --turquoise: rgb(29, 179, 174);
+    --bg: #f6f7f9;
+    --border: #e5e7eb;
+    --text: #1c1c1e;
+    --muted: #6b7280;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+
+  /* ================= LANDING (file picker) ================= */
+  .landing {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .landing-card {
+    background: white; border-radius: 16px; padding: 48px 56px;
+    max-width: 560px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+  }
+  .landing-logo {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: var(--rose); margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 28px; font-weight: 800;
+  }
+  .landing h1 { color: var(--rose); margin: 0 0 8px; font-size: 26px; }
+  .landing .lead { color: var(--muted); margin: 0 0 32px; font-size: 15px; }
+  .landing-drop {
+    display: block;
+    position: relative;
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 36px 20px; cursor: pointer;
+    background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .landing-drop:hover {
+    border-color: var(--rose); transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(206, 0, 127, 0.10);
+  }
+  .landing-drop.drag-over {
+    border-color: var(--rose); background: #fff0f7;
+    box-shadow: 0 0 0 4px rgba(206, 0, 127, 0.12);
+  }
+  .landing-drop-icon { font-size: 44px; margin-bottom: 10px; }
+  .landing-drop-text { font-weight: 600; color: #374151; margin-bottom: 4px; }
+  .landing-drop-hint { color: var(--muted); font-size: 13px; }
+  .landing-actions { margin-top: 24px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .landing-footer {
+    margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 12px; line-height: 1.6;
+  }
+
+  /* Warning banner */
+  .warning-banner {
+    background: #fef3c7; border-left: 4px solid #f59e0b; color: #78350f;
+    padding: 14px 18px; margin-bottom: 16px; border-radius: 6px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .warning-banner b { color: #92400e; }
+
+  /* ================= BUTTONS ================= */
+  .btn {
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 9px 16px; border-radius: 7px; border: 1px solid transparent;
+    cursor: pointer; transition: all .15s; background: white;
+  }
+  .btn-primary { background: var(--rose); color: white; border-color: var(--rose); }
+  .btn-primary:hover { background: var(--rose-dark); border-color: var(--rose-dark); }
+  .btn-ghost { background: white; border-color: #d1d5db; color: #374151; }
+  .btn-ghost:hover { background: #f3f4f6; border-color: #9ca3af; }
+  .btn-sm { padding: 6px 11px; font-size: 13px; }
+  .btn-close { background: transparent; border-color: transparent; font-size: 18px; padding: 8px 12px; color: var(--muted); }
+  .btn-close:hover { background: #f3f4f6; color: #111; }
+  .btn-danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+  .btn-danger:hover { background: #fecaca; }
+
+  /* ================= EDITOR LAYOUT ================= */
+  .editor { flex: 1; display: none; flex-direction: column; min-height: 0; }
+  .editor.active { display: flex; }
+  .editor-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px; background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .editor-title { display: flex; align-items: center; gap: 14px; }
+  .editor-title b { font-size: 16px; color: var(--rose); }
+  .editor-title-sub {
+    color: var(--muted); font-size: 12px; padding: 3px 10px;
+    background: #f3f4f6; border-radius: 12px; font-family: monospace;
+  }
+  .editor-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--turquoise);
+    box-shadow: 0 0 0 4px rgba(29,179,174,0.15);
+  }
+  .editor-actions { display: flex; gap: 8px; align-items: center; }
+  .save-status {
+    font-size: 12px; color: var(--muted); margin-right: 8px;
+  }
+  .save-status.dirty { color: #b45309; font-weight: 600; }
+
+  .editor-body {
+    flex: 1; display: grid;
+    grid-template-columns: 320px 1fr 440px;
+    min-height: 0;
+  }
+  .editor-body > * { overflow-y: auto; background: white; }
+  .panel-list { border-right: 1px solid var(--border); padding: 16px; }
+  .panel-edit { padding: 24px 30px; background: #f9fafb; }
+  .panel-preview { border-left: 1px solid var(--border); padding: 16px; background: #fafafa; }
+
+  /* List */
+  .list-head {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .list-head h4 { margin: 0; font-size: 13px; color: #374151; text-transform: uppercase; letter-spacing: 0.04em; }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0; line-height: 1.4; }
+  #article-list { list-style: none; padding: 0; margin: 0; }
+  .article-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 8px; margin: 4px 0;
+    background: white; border: 1px solid var(--border); border-radius: 6px;
+    cursor: pointer; transition: all .12s;
+  }
+  .article-item:hover { border-color: #cbd5e0; background: #f9fafb; }
+  .article-item.selected { border-color: var(--rose); background: #fff0f7; box-shadow: 0 0 0 1px var(--rose); }
+  .article-item.dragging { opacity: 0.4; }
+  .article-item.drag-over { border-top: 3px solid var(--turquoise); }
+  .item-handle { color: #9ca3af; cursor: grab; font-size: 14px; user-select: none; padding: 0 2px; }
+  .item-main { flex: 1; min-width: 0; }
+  .item-title { font-weight: 600; font-size: 13px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+  .status-pill { font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+  .status-published { background: #dcfce7; color: #15803d; }
+  .status-draft { background: #fef3c7; color: #a16207; }
+  .item-date { font-size: 11px; color: var(--muted); }
+  .item-del {
+    border: none; background: transparent; cursor: pointer; padding: 4px 6px;
+    border-radius: 4px; opacity: 0.4; transition: opacity .15s;
+  }
+  .article-item:hover .item-del { opacity: 1; }
+  .item-del:hover { background: #fee2e2; }
+
+  .empty-msg { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); text-align: center; padding: 40px; }
+  .empty-msg h3 { color: #374151; margin: 0 0 8px; font-weight: 500; }
+
+  /* Form */
+  .form { max-width: 760px; }
+  .form-row { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .form-field { margin-bottom: 18px; }
+  .form-field.grow, .form-row .grow { flex: 1; min-width: 160px; }
+  .form-field label {
+    display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; color: #374151; margin-bottom: 6px;
+  }
+  .form-field input[type="text"], .form-field input[type="url"], .form-field input[type="date"], .form-field select {
+    width: 100%; padding: 9px 12px; font-size: 14px; font-family: inherit;
+    border: 1px solid #d1d5db; border-radius: 6px; background: white;
+    color: #111; transition: border-color .15s;
+  }
+  .form-field input:focus, .form-field select:focus, .rte:focus {
+    outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(206,0,127,0.1);
+  }
+  .image-row { display: flex; gap: 8px; align-items: center; }
+  .img-preview {
+    margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; padding: 6px;
+    background: #f9fafb; display: inline-block; max-width: 260px;
+  }
+  .img-preview img { max-width: 100%; height: auto; display: block; border-radius: 3px; }
+
+  .toolbar {
+    display: flex; gap: 4px; flex-wrap: wrap; padding: 6px;
+    background: #f3f4f6; border: 1px solid #d1d5db; border-bottom: none;
+    border-radius: 6px 6px 0 0;
+  }
+  .toolbar button {
+    padding: 5px 10px; font-size: 13px; font-family: inherit;
+    background: white; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+    color: #374151;
+  }
+  .toolbar button:hover { background: #fff0f7; border-color: var(--rose); }
+  .toolbar .tb-rose { color: var(--rose); font-weight: 700; }
+  .toolbar .tb-turquoise { color: var(--turquoise); font-weight: 700; }
+
+  .rte {
+    min-height: 200px; padding: 14px; font-size: 14px; line-height: 1.6;
+    border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 6px 6px;
+    background: white; color: #111; font-family: inherit;
+    overflow-y: auto; max-height: 400px;
+  }
+  .rte p { margin: 0 0 14px 0; }
+  .rte p:last-child { margin-bottom: 0; }
+  .rte ul, .rte ol { margin: 10px 0; padding-left: 22px; }
+  .rte .title-color { color: var(--rose) !important; font-weight: 800; }
+  .rte .subtitle-color { color: var(--turquoise) !important; font-weight: 800; }
+  .rte strong { font-weight: 700; }
+
+  /* Preview */
+  .preview-head { margin-bottom: 14px; }
+  .preview-head h4 { margin: 0 0 4px; font-size: 13px; color: #374151; text-transform: uppercase; letter-spacing: 0.04em; }
+  #preview-content .topic-block { display: flex; gap: 12px; background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+  #preview-content .topic-block.reverse { flex-direction: row-reverse; }
+  #preview-content .topic-block .text { flex: 2; font-size: 13px; line-height: 1.5; }
+  #preview-content .topic-block .image { flex: 1; }
+  #preview-content .topic-block .image img { max-width: 100%; display:block; }
+  #preview-content h3 { font-size: 17px; margin: 0 0 4px; color: var(--rose); display: inline; font-weight: 800; }
+  #preview-content h4 { font-size: 14px; margin: 4px 0; color: var(--turquoise); display: inline; font-weight: 800; }
+  #preview-content .title-color { color: var(--rose); font-weight: 800; }
+  #preview-content .subtitle-color { color: var(--turquoise); font-weight: 800; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #111; color: white; padding: 14px 22px; border-radius: 8px;
+    font-size: 14px; font-weight: 500;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2); opacity: 0; transition: all .3s;
+    z-index: 9999; max-width: 90vw;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: #991b1b; }
+
+  /* Footer hint */
+  .list-footer {
+    margin-top: 24px; padding: 14px; background: #f0fdfa;
+    border-left: 3px solid var(--turquoise); border-radius: 4px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .list-footer p { margin: 6px 0; }
+  .list-footer ol { margin: 6px 0 6px 20px; padding: 0; }
+
+  /* Auth bar + modal (v2) */
+  .auth-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px; border-radius: 7px;
+    background: #f3f4f6; font-size: 12px;
+  }
+  .auth-bar.signed-in { background: #ecfdf5; color: #065f46; }
+  .auth-bar .auth-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+  }
+  .auth-bar.signed-in .auth-dot { background: #10b981; }
+  .auth-bar code { font-size: 11px; }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+    display: flex; align-items: center; justify-content: center; z-index: 10000;
+    padding: 20px;
+  }
+  .modal {
+    background: white; border-radius: 12px; padding: 28px 32px;
+    max-width: 520px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  }
+  .modal h3 { margin: 0 0 6px; color: var(--rose); font-size: 18px; }
+  .modal .modal-lead { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .modal ol { margin: 0 0 16px; padding-left: 20px; line-height: 1.6; }
+  .modal ol li { margin-bottom: 6px; }
+  .modal-token-input {
+    width: 100%; padding: 10px 12px; font-family: monospace; font-size: 13px;
+    border: 1px solid #d1d5db; border-radius: 6px; margin: 8px 0 4px;
+  }
+  .modal-token-input:focus {
+    outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(206,0,127,0.1);
+  }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .modal-err { color: #991b1b; font-size: 12px; min-height: 16px; margin-top: 4px; }
+
+  /* History modal */
+  .modal-history { max-width: 640px; max-height: 80vh; display: flex; flex-direction: column; }
+  .modal-history h3 { margin-bottom: 12px; }
+  .history-list { flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; margin: 10px 0; }
+  .history-empty { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; }
+  .history-row {
+    padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer;
+    display: flex; align-items: center; gap: 12px; transition: background .12s;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-row:hover { background: #fff0f7; }
+  .history-row.current { background: #ecfdf5; }
+  .history-when { font-size: 13px; font-weight: 600; color: #111; min-width: 150px; }
+  .history-msg { flex: 1; font-size: 13px; color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-sha { font-family: monospace; font-size: 11px; color: var(--muted); }
+  .history-badge { font-size: 10px; background: var(--turquoise); color: white; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+
+  /* Historical-version banner inside editor */
+  .historical-banner {
+    background: #fef3c7; border-left: 4px solid #f59e0b; color: #78350f;
+    padding: 10px 18px; font-size: 13px; line-height: 1.5;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .historical-banner b { color: #92400e; }
+  .historical-banner .btn { margin-left: auto; }
+
+  /* Landing hint (auto-fetch outcome) */
+  .landing-hint {
+    margin: 14px 0 0; padding: 10px 14px;
+    border-radius: 6px; font-size: 13px; line-height: 1.5;
+    text-align: left;
+  }
+  .landing-hint.info  { background: #eff6ff; border-left: 3px solid #3b82f6; color: #1e3a8a; }
+  .landing-hint.warn  { background: #fef3c7; border-left: 3px solid #f59e0b; color: #78350f; }
+  .landing-hint.empty { background: #f3f4f6; border-left: 3px solid #9ca3af; color: #374151; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .editor-body { grid-template-columns: 260px 1fr; }
+    .panel-preview { display: none; }
+  }
+  @media (max-width: 720px) {
+    .editor-body { grid-template-columns: 1fr; }
+    .panel-list { max-height: 240px; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LANDING — file picker
+     ============================================================ -->
+<div class="landing" id="landing">
+  <div class="landing-card">
+    <div class="landing-logo">A</div>
+    <h1>Éditeur d'articles APEL</h1>
+    <p class="lead">Chargez un fichier <code>apel-site-*.html</code> pour le modifier.</p>
+
+    <label class="landing-drop" id="drop-zone">
+      <div class="landing-drop-icon">📄</div>
+      <div class="landing-drop-text">Cliquez pour choisir un fichier, ou glissez-le ici</div>
+      <div class="landing-drop-hint">Fichier <code>.html</code> du site APEL</div>
+      <input type="file" accept=".html,text/html" id="file-input" style="display:none;">
+    </label>
+
+    <div class="landing-actions">
+      <button class="btn btn-ghost btn-sm" id="btn-history">🕓 Charger une ancienne version (GitHub)</button>
+      <button class="btn btn-ghost btn-sm" id="btn-blank">Modèle vide</button>
+    </div>
+
+    <div id="landing-hint-slot"></div>
+
+    <div class="landing-footer">
+      <b>Comment ça marche ?</b><br>
+      1. Chargez le dernier fichier <code>apel-site-*.html</code><br>
+      2. Ajoutez, modifiez ou réorganisez les articles<br>
+      3. Cliquez sur <b>💾 Sauvegarder</b> pour télécharger le nouveau fichier<br>
+      4. Envoyez ce fichier à l'école pour qu'ils le mettent en ligne
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     EDITOR
+     ============================================================ -->
+<div class="editor" id="editor">
+  <header class="editor-header">
+    <div class="editor-title">
+      <span class="editor-dot"></span>
+      <b>Éditeur APEL <span style="color:var(--turquoise);font-size:11px;background:#ecfeff;padding:2px 7px;border-radius:8px;vertical-align:middle;">v2</span></b>
+      <span class="editor-title-sub" id="filename-display">—</span>
+    </div>
+    <div class="editor-actions">
+      <div class="auth-bar" id="auth-bar">
+        <span class="auth-dot"></span>
+        <span id="auth-label">Non connecté à GitHub</span>
+        <button class="btn btn-ghost btn-sm" id="btn-auth" style="padding:3px 9px;">Connexion</button>
+      </div>
+      <span class="save-status" id="save-status">Synchronisé</span>
+      <button class="btn btn-ghost btn-sm" id="btn-change-file" title="Charger un autre fichier">📂 Changer de fichier</button>
+      <button class="btn btn-primary" id="btn-save">💾 Sauvegarder (télécharger)</button>
+    </div>
+  </header>
+
+  <div id="historical-banner" class="historical-banner" style="display:none;">
+    <span>⚠️ <b>Version historique</b> — <span id="historical-when"></span>. Sauvegarder écrasera la version actuelle sur GitHub.</span>
+    <button class="btn btn-ghost btn-sm" id="btn-historical-back">Revenir à la dernière version</button>
+  </div>
+
+  <div class="editor-body">
+    <!-- LEFT: article list -->
+    <aside class="panel-list">
+      <div id="warning-slot"></div>
+      <div class="list-head">
+        <h4>Articles (<span id="article-count">0</span>)</h4>
+        <button class="btn btn-primary btn-sm" id="btn-add">+ Nouvel article</button>
+      </div>
+      <p class="hint">Glissez-déposez pour réordonner. L'ordre dans la liste = l'ordre sur le site.</p>
+      <ul id="article-list"></ul>
+      <div class="list-footer">
+        <p><b>💡 Rappel</b></p>
+        <ol>
+          <li>Faites vos modifications</li>
+          <li>Cliquez <b>💾 Sauvegarder</b></li>
+          <li>Envoyez le fichier à l'école</li>
+        </ol>
+        <p class="hint">Vos changements sont gardés dans ce navigateur tant que vous n'avez pas sauvegardé.</p>
+      </div>
+    </aside>
+
+    <!-- CENTER: edit form -->
+    <main class="panel-edit">
+      <div id="edit-panel" class="empty-msg">
+        <div>
+          <h3>👋 Bienvenue</h3>
+          <p>Sélectionnez un article à gauche, ou créez-en un nouveau.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT: live preview -->
+    <aside class="panel-preview">
+      <div class="preview-head">
+        <h4>Aperçu en direct</h4>
+        <span class="hint">Rendu tel qu'il apparaîtra sur le site</span>
+      </div>
+      <div id="preview-content"></div>
+    </aside>
+  </div>
+</div>
+
+<!-- ============================================================
+     AUTH MODAL (v2)
+     ============================================================ -->
+<div class="modal-backdrop" id="auth-modal" style="display:none;">
+  <div class="modal">
+    <h3>Connexion à GitHub</h3>
+    <p class="modal-lead">Pour téléverser des images, il faut un jeton GitHub (Personal Access Token, PAT). Une seule fois par appareil.</p>
+    <ol>
+      <li>Ouvrez <a id="auth-gen-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la page de génération du jeton</a> (connectez-vous au compte partagé de l'association).</li>
+      <li><b>Resource owner</b> : le compte de l'association. <b>Repository access</b> : <i>Only select repositories</i> → choisissez <code id="auth-repo-hint">apel-images</code>.</li>
+      <li><b>Repository permissions</b> → <b>Contents</b> : <i>Read and write</i>. Laissez les autres sur <i>No access</i>.</li>
+      <li>Validez, copiez le jeton (commence par <code>github_pat_…</code>), et collez-le ci-dessous.</li>
+    </ol>
+    <input type="password" id="auth-token-input" class="modal-token-input" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
+    <div class="modal-err" id="auth-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="auth-cancel">Annuler</button>
+      <button class="btn btn-primary btn-sm" id="auth-confirm">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="modal-backdrop" id="history-modal" style="display:none;">
+  <div class="modal modal-history">
+    <h3>Versions du site sur GitHub</h3>
+    <p class="modal-lead">Cliquez sur une version pour la charger dans l'éditeur. Vous pourrez ensuite la modifier puis « Sauvegarder » pour la remettre en avant.</p>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">Chargement…</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="history-cancel">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Application state
+   ============================================================ */
+const STORAGE_KEY = 'apel_editor_state_v1';
+
+/* ============================================================
+   GitHub image-upload configuration (v2)
+   ------------------------------------------------------------
+   FILL THESE IN once the GitHub setup is done:
+     1. Create a GitHub account for the association
+        (use the shared workspace email, e.g. association@my.domain).
+     2. Create a public repo "apel-images" under that account.
+     3. Set GH_IMAGES_REPO below to "<owner>/apel-images".
+   ============================================================ */
+const GH_IMAGES_REPO = 'kripskroll/apel-images';   // ← change to "<owner>/apel-images"
+const GH_SITE_REPO   = 'kripskroll/apel-site';     // ← change to "<owner>/apel-site"
+const GH_SITE_FILE   = 'apel-site.html';
+const GH_SITE_BRANCH = 'main';
+const GH_TOKEN_KEY   = 'apel_gh_token_v1';
+const GH_USER_KEY    = 'apel_gh_user_v1';
+const IMG_MAX_WIDTH  = 1600;
+const IMG_QUALITY    = 0.85;
+
+let state = {
+  loadedHtml: null,        // string: full HTML of the loaded site file
+  filename: null,          // string: original filename
+  data: { articles: [] },  // parsed articles JSON
+  selectedId: null,
+  dirty: false,
+  recognized: true,        // false if the loaded file wasn't generated by this app
+  siteLoadedFrom: null,    // 'github' | 'github-historical' | 'disk' | null
+  historicalSha: null,     // commit SHA when viewing a historical version
+  historicalDate: null     // ISO date string for the historical banner
+};
+
+// Try to restore previous session
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    const s = JSON.parse(saved);
+    if (s && s.loadedHtml) {
+      state = { ...state, ...s };
+    }
+  }
+} catch(e) {}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(d) {
+  if (!d) return 'Pas de date';
+  const dt = new Date(d);
+  if (isNaN(dt)) return d;
+  return dt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function toast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 4500);
+}
+function saveSession() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      loadedHtml: state.loadedHtml,
+      filename: state.filename,
+      data: state.data,
+      selectedId: state.selectedId,
+      dirty: state.dirty,
+      recognized: state.recognized
+    }));
+  } catch(e) { console.warn('localStorage full', e); }
+}
+function markDirty() {
+  state.dirty = true;
+  const s = document.getElementById('save-status');
+  if (s) { s.textContent = '● Modifications non sauvegardées'; s.classList.add('dirty'); }
+  saveSession();
+}
+function markClean() {
+  state.dirty = false;
+  const s = document.getElementById('save-status');
+  if (s) { s.textContent = 'Synchronisé'; s.classList.remove('dirty'); }
+  saveSession();
+}
+
+/* ============================================================
+   GitHub auth (v2) — fine-grained PAT in localStorage
+   ============================================================ */
+function getGhToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
+function getGhUser()  { return localStorage.getItem(GH_USER_KEY) || ''; }
+function setGhAuth(token, user) {
+  localStorage.setItem(GH_TOKEN_KEY, token);
+  localStorage.setItem(GH_USER_KEY, user);
+  renderAuthBar();
+}
+function clearGhAuth() {
+  localStorage.removeItem(GH_TOKEN_KEY);
+  localStorage.removeItem(GH_USER_KEY);
+  renderAuthBar();
+}
+
+async function verifyGhToken(token) {
+  const r = await fetch('https://api.github.com/user', {
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error('Jeton invalide (HTTP ' + r.status + ')');
+  const j = await r.json();
+  return j.login;
+}
+
+function renderAuthBar() {
+  const bar = document.getElementById('auth-bar');
+  const label = document.getElementById('auth-label');
+  const btn = document.getElementById('btn-auth');
+  if (!bar) return;
+  const user = getGhUser();
+  if (user) {
+    bar.classList.add('signed-in');
+    label.innerHTML = 'GitHub : <b>' + esc(user) + '</b>';
+    btn.textContent = 'Déconnexion';
+  } else {
+    bar.classList.remove('signed-in');
+    label.textContent = 'Non connecté à GitHub';
+    btn.textContent = 'Connexion';
+  }
+}
+
+function openAuthModal() {
+  const repoName = GH_IMAGES_REPO.split('/')[1] || 'apel-images';
+  document.getElementById('auth-repo-hint').textContent = repoName;
+  document.getElementById('auth-err').textContent = '';
+  document.getElementById('auth-token-input').value = '';
+  document.getElementById('auth-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('auth-token-input').focus(), 50);
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').style.display = 'none';
+}
+
+/* ============================================================
+   Site file on GitHub (v2)
+   ------------------------------------------------------------
+   The canonical apel-site.html lives at GH_SITE_REPO/main/GH_SITE_FILE.
+   - fetchSiteFromGitHub() loads it on page open (auth-less, public repo)
+   - commitSiteToGitHub(html) writes it on Sauvegarder (needs PAT)
+   - listSiteCommits() returns the commit history for the history modal
+   ============================================================ */
+const RAW_BASE = 'https://raw.githubusercontent.com';
+const API_BASE = 'https://api.github.com';
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function base64ToUtf8(b64) {
+  const bin = atob(b64.replace(/\s/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+async function fetchSiteFromGitHub() {
+  if (!GH_SITE_REPO || GH_SITE_REPO.startsWith('OWNER/')) {
+    throw new Error('Le dépôt du site n\'est pas configuré (GH_SITE_REPO).');
+  }
+  const url = `${RAW_BASE}/${GH_SITE_REPO}/${GH_SITE_BRANCH}/${GH_SITE_FILE}?cb=${Date.now()}`;
+  const r = await fetch(url, { cache: 'no-store' });
+  if (r.status === 404) { const e = new Error('404'); e.status = 404; throw e; }
+  if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+  return await r.text();
+}
+
+async function getSiteSha() {
+  const token = getGhToken();
+  const headers = { 'Accept': 'application/vnd.github+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+  const r = await fetch(
+    `${API_BASE}/repos/${GH_SITE_REPO}/contents/${GH_SITE_FILE}?ref=${GH_SITE_BRANCH}`,
+    { headers, cache: 'no-store' }
+  );
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('Impossible d\'obtenir l\'état GitHub (HTTP ' + r.status + ').');
+  const j = await r.json();
+  return j.sha;
+}
+
+async function commitSiteToGitHub(html) {
+  const token = getGhToken();
+  if (!token) throw new Error('Pas de jeton GitHub. Cliquez sur « Connexion ».');
+  if (!GH_SITE_REPO || GH_SITE_REPO.startsWith('OWNER/')) {
+    throw new Error('Le dépôt du site n\'est pas configuré (GH_SITE_REPO).');
+  }
+  const currentSha = await getSiteSha();
+  const body = {
+    message: `Save ${GH_SITE_FILE} ${new Date().toISOString().slice(0,16).replace('T',' ')}`,
+    content: utf8ToBase64(html),
+    branch: GH_SITE_BRANCH
+  };
+  if (currentSha) body.sha = currentSha;
+  const r = await fetch(`${API_BASE}/repos/${GH_SITE_REPO}/contents/${GH_SITE_FILE}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (r.status === 409) {
+    throw new Error('Le fichier a été modifié sur GitHub entre-temps. Rechargez la page (vos modifs locales seront perdues), puis refaites vos modifications.');
+  }
+  if (!r.ok) {
+    let msg = 'HTTP ' + r.status;
+    try { const j = await r.json(); if (j.message) msg += ' — ' + j.message; } catch(e){}
+    throw new Error('Commit refusé : ' + msg);
+  }
+  const j = await r.json();
+  return { sha: j.commit.sha, shortSha: j.commit.sha.slice(0,7) };
+}
+
+async function listSiteCommits(perPage = 30) {
+  const token = getGhToken();
+  const headers = { 'Accept': 'application/vnd.github+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+  const r = await fetch(
+    `${API_BASE}/repos/${GH_SITE_REPO}/commits?path=${encodeURIComponent(GH_SITE_FILE)}&per_page=${perPage}`,
+    { headers, cache: 'no-store' }
+  );
+  if (!r.ok) throw new Error('Impossible de lire l\'historique (HTTP ' + r.status + ').');
+  return await r.json();
+}
+
+async function fetchSiteAtCommit(sha) {
+  const token = getGhToken();
+  const headers = { 'Accept': 'application/vnd.github+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+  const r = await fetch(
+    `${API_BASE}/repos/${GH_SITE_REPO}/contents/${GH_SITE_FILE}?ref=${sha}`,
+    { headers, cache: 'no-store' }
+  );
+  if (!r.ok) throw new Error('Impossible de charger cette version (HTTP ' + r.status + ').');
+  const j = await r.json();
+  return base64ToUtf8(j.content);
+}
+
+function renderHistoricalBanner() {
+  const banner = document.getElementById('historical-banner');
+  if (!banner) return;
+  if (state.siteLoadedFrom === 'github-historical') {
+    banner.style.display = 'flex';
+    document.getElementById('historical-when').textContent =
+      state.historicalDate ? new Date(state.historicalDate).toLocaleString('fr-FR') : '';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function setLandingHint(kind, html) {
+  const slot = document.getElementById('landing-hint-slot');
+  if (!slot) return;
+  if (!kind) { slot.innerHTML = ''; return; }
+  slot.innerHTML = `<div class="landing-hint ${kind}">${html}</div>`;
+}
+
+/* ============================================================
+   Image resize/compress (v2)
+   ============================================================ */
+async function resizeImage(file) {
+  if (!file.type.startsWith('image/')) throw new Error('Ce fichier n\'est pas une image.');
+  const dataUrl = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error('Lecture du fichier impossible.'));
+    r.readAsDataURL(file);
+  });
+  const img = await new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.onerror = () => rej(new Error('Image illisible.'));
+    i.src = dataUrl;
+  });
+  const w = img.naturalWidth, h = img.naturalHeight;
+  const scale = w > IMG_MAX_WIDTH ? IMG_MAX_WIDTH / w : 1;
+  const tw = Math.round(w * scale), th = Math.round(h * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = tw; canvas.height = th;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, tw, th);
+  const blob = await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('Conversion en webp impossible.')),
+                  'image/webp', IMG_QUALITY);
+  });
+  return { blob, ext: 'webp', width: tw, height: th };
+}
+
+function slugify(s) {
+  return String(s || 'image')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+    .slice(0, 40) || 'image';
+}
+function shortHash() {
+  return Math.random().toString(36).slice(2, 8);
+}
+async function blobToBase64(blob) {
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+async function uploadImageToGitHub(blob, ext, articleTitle) {
+  const token = getGhToken();
+  if (!token) throw new Error('Pas de jeton GitHub. Cliquez sur « Connexion ».');
+  if (!GH_IMAGES_REPO || GH_IMAGES_REPO.startsWith('OWNER/')) {
+    throw new Error('Le dépôt d\'images n\'est pas configuré (GH_IMAGES_REPO).');
+  }
+  const today = new Date();
+  const year = today.getFullYear();
+  const yyyymmdd = today.toISOString().slice(0, 10);
+  const slug = slugify(articleTitle);
+  const path = `images/${year}/${yyyymmdd}-${slug}-${shortHash()}.${ext}`;
+  const b64 = await blobToBase64(blob);
+  const url = `https://api.github.com/repos/${GH_IMAGES_REPO}/contents/${path}`;
+  const body = {
+    message: `Add image ${path}`,
+    content: b64,
+    branch: 'main'
+  };
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    let msg = 'HTTP ' + r.status;
+    try { const j = await r.json(); if (j.message) msg += ' — ' + j.message; } catch(e){}
+    throw new Error('Téléversement refusé : ' + msg);
+  }
+  const j = await r.json();
+  return j.content.download_url;   // raw.githubusercontent.com/<owner>/<repo>/main/<path>
+}
+
+/* ============================================================
+   File loading
+   ============================================================ */
+async function loadFile(file) {
+  const text = await file.text();
+  try {
+    state.siteLoadedFrom = 'disk';
+    state.historicalSha = null;
+    state.historicalDate = null;
+    parseAndOpen(text, file.name);
+  } catch (err) {
+    toast('Erreur au chargement : ' + err.message, true);
+    console.error(err);
+  }
+}
+
+function parseAndOpen(html, filename) {
+  // Parse via DOMParser so we don't execute scripts
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const dataEl = doc.getElementById('articles-data');
+
+  let data = { articles: [] };
+  let recognized = false;
+
+  if (dataEl && dataEl.getAttribute('data-apel-app') === '1') {
+    try {
+      data = JSON.parse(dataEl.textContent);
+      recognized = true;
+    } catch (e) {
+      throw new Error('Bloc articles-data corrompu : ' + e.message);
+    }
+  } else if (dataEl) {
+    // Has an articles-data block but no app marker — treat as partially compatible
+    try {
+      data = JSON.parse(dataEl.textContent);
+      recognized = true;
+    } catch (e) {
+      recognized = false;
+    }
+  } else {
+    // No data block at all — file is unrecognized
+    recognized = false;
+    data = { articles: [] };
+  }
+
+  state.loadedHtml = html;
+  state.filename = filename;
+  state.data = data;
+  state.data.articles = state.data.articles || [];
+  state.selectedId = null;
+  state.dirty = false;
+  state.recognized = recognized;
+  saveSession();
+  openEditor();
+}
+
+function openBlank() {
+  // Create minimal state with empty articles; user will have to paste a file later to really save
+  if (!confirm('Commencer avec un modèle vide ? Vous ne pourrez pas générer un fichier site tant que vous n\'aurez pas chargé un fichier original.')) return;
+  state.loadedHtml = null;
+  state.filename = null;
+  state.data = { articles: [] };
+  state.selectedId = null;
+  state.dirty = false;
+  state.recognized = true;
+  saveSession();
+  openEditor();
+}
+
+/* ============================================================
+   Editor UI
+   ============================================================ */
+function openEditor() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('editor').classList.add('active');
+  document.getElementById('filename-display').textContent = state.filename || '(nouveau fichier)';
+  renderWarning();
+  renderHistoricalBanner();
+  renderList();
+  renderForm();
+  markClean();
+}
+
+function backToLanding() {
+  if (state.dirty && !confirm('Vous avez des modifications non sauvegardées. Les abandonner ?')) return;
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('editor').classList.remove('active');
+  // Keep session in storage in case user comes back
+}
+
+function renderWarning() {
+  const slot = document.getElementById('warning-slot');
+  slot.innerHTML = '';
+  if (!state.recognized) {
+    slot.innerHTML = `
+      <div class="warning-banner">
+        ⚠️ <b>Fichier non reconnu.</b> Ce fichier HTML n'a pas été généré par cette application.
+        La liste d'articles est vide. Créez vos articles, puis sauvegardez.
+        <br><br>
+        Si vous vouliez modifier un site existant, chargez plutôt un fichier <code>apel-site-*.html</code> récent
+        qui contient déjà vos articles.
+      </div>
+    `;
+  }
+}
+
+function renderList() {
+  const ul = document.getElementById('article-list');
+  const count = document.getElementById('article-count');
+  count.textContent = state.data.articles.length;
+  ul.innerHTML = '';
+  state.data.articles.forEach(a => {
+    const li = document.createElement('li');
+    li.className = 'article-item' + (a.id === state.selectedId ? ' selected' : '');
+    li.dataset.id = a.id;
+    li.draggable = true;
+    li.innerHTML = `
+      <div class="item-handle" title="Glisser pour réordonner">⋮⋮</div>
+      <div class="item-main">
+        <div class="item-title">${esc(a.title || '(Sans titre)')}</div>
+        <div class="item-meta">
+          <span class="status-pill status-${a.status || 'published'}">${a.status === 'draft' ? 'Brouillon' : 'Publié'}</span>
+          <span class="item-date">${formatDate(a.date)}</span>
+        </div>
+      </div>
+      <button class="item-del" title="Supprimer" data-del="${a.id}">🗑</button>
+    `;
+    ul.appendChild(li);
+  });
+  attachListHandlers();
+}
+
+let dragId = null;
+function attachListHandlers() {
+  document.querySelectorAll('.article-item').forEach(li => {
+    li.addEventListener('click', e => {
+      if (e.target.closest('.item-del')) return;
+      state.selectedId = li.dataset.id;
+      saveSession();
+      renderList();
+      renderForm();
+    });
+    li.addEventListener('dragstart', e => {
+      dragId = li.dataset.id;
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => { li.classList.remove('dragging'); dragId = null; });
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault(); li.classList.remove('drag-over');
+      if (!dragId || dragId === li.dataset.id) return;
+      const from = state.data.articles.findIndex(a => a.id === dragId);
+      const to = state.data.articles.findIndex(a => a.id === li.dataset.id);
+      if (from < 0 || to < 0) return;
+      const [m] = state.data.articles.splice(from, 1);
+      state.data.articles.splice(to, 0, m);
+      markDirty();
+      renderList();
+    });
+  });
+  document.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.del;
+      const a = state.data.articles.find(x => x.id === id);
+      if (!confirm(`Supprimer l'article « ${a?.title || id} » ?`)) return;
+      state.data.articles = state.data.articles.filter(x => x.id !== id);
+      if (state.selectedId === id) state.selectedId = null;
+      markDirty();
+      renderList();
+      renderForm();
+    });
+  });
+}
+
+function renderForm() {
+  const panel = document.getElementById('edit-panel');
+  const a = state.data.articles.find(x => x.id === state.selectedId);
+  if (!a) {
+    panel.className = 'empty-msg';
+    panel.innerHTML = `<div><h3>👋 Bienvenue</h3><p>Sélectionnez un article à gauche, ou créez-en un nouveau.</p></div>`;
+    document.getElementById('preview-content').innerHTML = '';
+    return;
+  }
+  panel.className = '';
+  panel.innerHTML = `
+    <form class="form" onsubmit="return false;">
+      <div class="form-row">
+        <div class="form-field grow">
+          <label>Titre (rose)</label>
+          <input type="text" data-k="title" value="${esc(a.title)}" placeholder="Ex : Forum des métiers">
+        </div>
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" data-k="date" value="${esc(a.date)}">
+        </div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select data-k="status">
+            <option value="published"${a.status !== 'draft' ? ' selected' : ''}>Publié</option>
+            <option value="draft"${a.status === 'draft' ? ' selected' : ''}>Brouillon</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Sous-titre (turquoise) — optionnel</label>
+        <input type="text" data-k="subtitle" value="${esc(a.subtitle)}" placeholder="Ex : pour éclairer l'avenir">
+      </div>
+      <div class="form-field">
+        <label>Image</label>
+        <div class="image-row">
+          <input type="url" data-k="image" value="${esc(a.image)}" placeholder="https://raw.githubusercontent.com/... (URL)" style="flex:1;">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer; white-space:nowrap;">
+            📎 Importer
+            <input type="file" accept="image/*" style="display:none;" data-upload>
+          </label>
+        </div>
+        ${a.image ? `<div class="img-preview"><img src="${esc(a.image)}" alt=""></div>` : ''}
+        <p class="hint">Privilégiez une URL (plus léger).</p>
+      </div>
+      <div class="form-field">
+        <label>Corps du texte</label>
+        <div class="toolbar" data-toolbar-for="body">
+          <button type="button" data-cmd="bold"><b>B</b></button>
+          <button type="button" data-cmd="italic"><i>I</i></button>
+          <button type="button" data-cmd="insertUnorderedList">• Liste</button>
+          <button type="button" data-cmd="formatBlock" data-val="p">¶</button>
+          <button type="button" data-cmd="color" data-val="rose" class="tb-rose">Rose</button>
+          <button type="button" data-cmd="color" data-val="turquoise" class="tb-turquoise">Turquoise</button>
+          <button type="button" data-cmd="justifyCenter">⇔ Centrer</button>
+          <button type="button" data-cmd="justifyLeft">⇤ Gauche</button>
+          <button type="button" data-cmd="createLink">🔗 Lien</button>
+          <button type="button" data-cmd="removeFormat">✕ Format</button>
+        </div>
+        <div class="rte" contenteditable="true" data-k="body">${a.body || ''}</div>
+      </div>
+      <div class="form-field">
+        <label>Bouton (optionnel)</label>
+        <div class="form-row">
+          <input type="text" data-btn="label" value="${esc(a.button?.label || '')}" placeholder="Texte du bouton" class="grow">
+          <input type="url" data-btn="url" value="${esc(a.button?.url || '')}" placeholder="https://..." class="grow">
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-clear-btn">Effacer</button>
+        </div>
+      </div>
+    </form>
+  `;
+  attachFormHandlers(a);
+  renderPreview(a);
+}
+
+function attachFormHandlers(a) {
+  const panel = document.getElementById('edit-panel');
+
+  // Rich text: Enter = <p>, Shift+Enter = <br>
+  panel.querySelectorAll('.rte').forEach(rte => {
+    try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+    rte.addEventListener('keydown', ev => {
+      if (ev.key !== 'Enter') return;
+      if (ev.shiftKey) {
+        ev.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+  });
+
+  // Text/select fields
+  panel.querySelectorAll('[data-k]').forEach(el => {
+    const key = el.dataset.k;
+    const handler = () => {
+      a[key] = el.tagName === 'DIV' ? el.innerHTML : el.value;
+      if (key === 'image') {
+        const prev = panel.querySelector('.img-preview img');
+        if (prev) prev.src = a.image;
+      }
+      if (['title','date','status'].includes(key)) renderList();
+      markDirty();
+      renderPreview(a);
+    };
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+  });
+
+  // Button object
+  panel.querySelectorAll('[data-btn]').forEach(el => {
+    el.addEventListener('input', () => {
+      if (!a.button) a.button = { label: '', url: '' };
+      a.button[el.dataset.btn] = el.value;
+      if (!a.button.label && !a.button.url) a.button = null;
+      markDirty();
+      renderPreview(a);
+    });
+  });
+  document.getElementById('btn-clear-btn')?.addEventListener('click', () => {
+    a.button = null;
+    markDirty();
+    renderForm();
+  });
+
+  // Toolbar
+  panel.querySelectorAll('.toolbar').forEach(tb => {
+    const field = tb.dataset.toolbarFor;
+    const target = panel.querySelector(`.rte[data-k="${field}"]`);
+    tb.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('mousedown', e => e.preventDefault());
+      btn.addEventListener('click', () => {
+        target.focus();
+        const cmd = btn.dataset.cmd;
+        const val = btn.dataset.val;
+        if (cmd === 'color') {
+          const className = val === 'rose' ? 'title-color' : 'subtitle-color';
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount && !sel.isCollapsed) {
+            const range = sel.getRangeAt(0);
+            const wrap = document.createElement('strong');
+            wrap.className = className;
+            try { range.surroundContents(wrap); }
+            catch (e) { wrap.appendChild(range.extractContents()); range.insertNode(wrap); }
+            sel.removeAllRanges();
+          }
+        } else if (cmd === 'createLink') {
+          const url = prompt('URL du lien :', 'https://');
+          if (url) document.execCommand('createLink', false, url);
+        } else if (cmd === 'formatBlock') {
+          document.execCommand('formatBlock', false, val);
+        } else {
+          document.execCommand(cmd, false, null);
+        }
+        a[field] = target.innerHTML;
+        markDirty();
+        renderPreview(a);
+      });
+    });
+  });
+
+  // Image upload (v2) → resize + push to GitHub, store the raw URL
+  panel.querySelector('[data-upload]')?.addEventListener('change', async e => {
+    const input = e.target;
+    const file = input.files[0];
+    if (!file) return;
+    if (!getGhToken()) {
+      toast('Connectez-vous à GitHub d\'abord (bouton « Connexion » en haut).', true);
+      input.value = '';
+      return;
+    }
+    if (GH_IMAGES_REPO.startsWith('OWNER/')) {
+      toast('Le dépôt d\'images n\'est pas configuré (voir GH_IMAGES_REPO dans le fichier).', true);
+      input.value = '';
+      return;
+    }
+    try {
+      toast('Compression de l\'image…');
+      const { blob } = await resizeImage(file);
+      toast(`Téléversement vers GitHub (${Math.round(blob.size/1024)} Ko)…`);
+      const url = await uploadImageToGitHub(blob, 'webp', a.title);
+      a.image = url;
+      markDirty();
+      renderForm();
+      toast('✅ Image téléversée');
+    } catch (err) {
+      console.error(err);
+      toast('Erreur : ' + err.message, true);
+    } finally {
+      input.value = '';
+    }
+  });
+}
+
+function renderPreview(a) {
+  const prev = document.getElementById('preview-content');
+  const idx = state.data.articles.findIndex(x => x.id === a.id);
+  const reverse = idx % 2 === 1;
+  prev.innerHTML = `
+    <div class="topic-block ${reverse ? 'reverse' : ''}">
+      <div class="text">
+        ${a.title ? `<h3 class="title-color">${esc(a.title)}</h3><br>` : ''}
+        ${a.subtitle ? `<h4 class="subtitle-color">${esc(a.subtitle)}</h4><br><br>` : (a.title ? '<br><br>' : '')}
+        ${a.body || ''}
+        ${a.button?.url && a.button?.label ? `<p style="text-align:center;"><button style="background: var(--turquoise); color: white; border: none; padding: 8px 14px; font-weight: 800; border-radius: 4px;">${esc(a.button.label)}</button></p>` : ''}
+      </div>
+      ${a.image ? `<div class="image"><img src="${esc(a.image)}" alt="" /></div>` : ''}
+    </div>
+  `;
+}
+
+/* ============================================================
+   Save → regenerate HTML
+   ============================================================ */
+async function saveFile() {
+  if (!state.loadedHtml) {
+    toast('Aucun fichier site chargé. Chargez un fichier apel-site-*.html d\'abord.', true);
+    return;
+  }
+  // Parse loaded HTML, swap the JSON, stringify back
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(state.loadedHtml, 'text/html');
+  let dataEl = doc.getElementById('articles-data');
+  if (!dataEl) {
+    toast('Impossible de trouver le bloc articles-data dans le fichier chargé.', true);
+    return;
+  }
+  dataEl.textContent = '\n' + JSON.stringify(state.data, null, 2) + '\n';
+  dataEl.setAttribute('data-apel-app', '1');
+
+  const doctype = '<!DOCTYPE html>\n';
+  const htmlOut = doctype + doc.documentElement.outerHTML;
+
+  // 1) Local dated download (unchanged)
+  const blob = new Blob([htmlOut], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = URL.createObjectURL(blob);
+  a.download = `apel-site-${stamp}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  // 2) Commit to GitHub if signed in and configured
+  const canCommit = getGhToken() && GH_SITE_REPO && !GH_SITE_REPO.startsWith('OWNER/');
+  if (!canCommit) {
+    markClean();
+    toast(`✅ Fichier téléchargé : apel-site-${stamp}.html` + (getGhToken() ? '' : ' (GitHub non connecté, pas de commit)'));
+    return;
+  }
+  try {
+    toast('Commit vers GitHub en cours…');
+    const res = await commitSiteToGitHub(htmlOut);
+    // Update state so future saves use the latest sha; clear historical flag
+    state.loadedHtml = htmlOut;
+    state.siteLoadedFrom = 'github';
+    state.historicalSha = null;
+    state.historicalDate = null;
+    renderHistoricalBanner();
+    markClean();
+    toast(`✅ Sauvegardé : téléchargement + commit GitHub ${res.shortSha}`);
+  } catch (err) {
+    console.error(err);
+    markClean();   // local DL still succeeded
+    toast(`⚠️ Téléchargement OK, mais commit GitHub échoué : ${err.message}`, true);
+  }
+}
+
+/* ============================================================
+   Event wiring
+   ============================================================ */
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+});
+const dropZone = document.getElementById('drop-zone');
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
+  e.preventDefault(); dropZone.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+}));
+dropZone.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+document.getElementById('btn-blank').addEventListener('click', openBlank);
+document.getElementById('btn-save').addEventListener('click', saveFile);
+document.getElementById('btn-change-file').addEventListener('click', backToLanding);
+document.getElementById('btn-add').addEventListener('click', () => {
+  const id = 'article-' + Date.now();
+  const today = new Date().toISOString().slice(0,10);
+  state.data.articles.unshift({
+    id, status: 'draft', date: today,
+    title: 'Nouvel article', subtitle: '', image: '',
+    body: '<p>Rédigez votre article ici…</p>',
+    button: null
+  });
+  state.selectedId = id;
+  markDirty();
+  renderList();
+  renderForm();
+});
+
+// Warn on unload if dirty
+window.addEventListener('beforeunload', e => {
+  if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// Auth bar + modal (v2)
+document.getElementById('btn-auth').addEventListener('click', () => {
+  if (getGhToken()) {
+    if (!confirm('Vous déconnecter de GitHub ? Le jeton sera effacé sur cet appareil.')) return;
+    clearGhAuth();
+    toast('Déconnecté de GitHub.');
+  } else {
+    openAuthModal();
+  }
+});
+document.getElementById('auth-cancel').addEventListener('click', closeAuthModal);
+document.getElementById('auth-modal').addEventListener('click', e => {
+  if (e.target.id === 'auth-modal') closeAuthModal();
+});
+document.getElementById('auth-confirm').addEventListener('click', async () => {
+  const token = document.getElementById('auth-token-input').value.trim();
+  const errEl = document.getElementById('auth-err');
+  errEl.textContent = '';
+  if (!token) { errEl.textContent = 'Collez votre jeton GitHub.'; return; }
+  try {
+    const login = await verifyGhToken(token);
+    setGhAuth(token, login);
+    closeAuthModal();
+    toast('✅ Connecté à GitHub en tant que ' + login);
+  } catch (err) {
+    errEl.textContent = err.message;
+  }
+});
+document.getElementById('auth-token-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-confirm').click();
+});
+renderAuthBar();
+
+/* ============================================================
+   History modal wiring (v2)
+   ============================================================ */
+async function openHistoryModal() {
+  document.getElementById('history-modal').style.display = 'flex';
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<div class="history-empty">Chargement…</div>';
+  try {
+    const commits = await listSiteCommits(30);
+    if (!commits.length) {
+      list.innerHTML = '<div class="history-empty">Aucune version sur GitHub pour l\'instant.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    commits.forEach((c, i) => {
+      const row = document.createElement('div');
+      row.className = 'history-row' + (i === 0 ? ' current' : '');
+      const when = new Date(c.commit.author.date);
+      row.innerHTML = `
+        <span class="history-when">${esc(when.toLocaleString('fr-FR'))}</span>
+        <span class="history-msg" title="${esc(c.commit.message)}">${esc(c.commit.message)}</span>
+        <span class="history-sha">${esc(c.sha.slice(0,7))}</span>
+        ${i === 0 ? '<span class="history-badge">Actuelle</span>' : ''}
+      `;
+      row.addEventListener('click', () => loadHistoricalVersion(c.sha, when.toISOString()));
+      list.appendChild(row);
+    });
+  } catch (err) {
+    list.innerHTML = `<div class="history-empty">Erreur : ${esc(err.message)}</div>`;
+  }
+}
+function closeHistoryModal() {
+  document.getElementById('history-modal').style.display = 'none';
+}
+async function loadHistoricalVersion(sha, isoDate) {
+  try {
+    const html = await fetchSiteAtCommit(sha);
+    state.siteLoadedFrom = 'github-historical';
+    state.historicalSha = sha;
+    state.historicalDate = isoDate;
+    parseAndOpen(html, `apel-site.html @ ${sha.slice(0,7)}`);
+    closeHistoryModal();
+  } catch (err) {
+    toast('Erreur : ' + err.message, true);
+  }
+}
+async function refreshLatestFromGitHub() {
+  try {
+    const html = await fetchSiteFromGitHub();
+    state.siteLoadedFrom = 'github';
+    state.historicalSha = null;
+    state.historicalDate = null;
+    parseAndOpen(html, GH_SITE_FILE);
+  } catch (err) {
+    toast('Impossible de recharger : ' + err.message, true);
+  }
+}
+
+document.getElementById('btn-history').addEventListener('click', openHistoryModal);
+document.getElementById('history-cancel').addEventListener('click', closeHistoryModal);
+document.getElementById('history-modal').addEventListener('click', e => {
+  if (e.target.id === 'history-modal') closeHistoryModal();
+});
+document.getElementById('btn-historical-back').addEventListener('click', () => {
+  if (state.dirty && !confirm('Vous avez des modifications non sauvegardées. Les abandonner et revenir à la dernière version ?')) return;
+  refreshLatestFromGitHub();
+});
+
+/* ============================================================
+   Init — try auto-fetch from GitHub, else restore session, else landing
+   ============================================================ */
+(async function init() {
+  // 1) Try auto-fetch the latest from GitHub (works whether signed in or not — public repo)
+  try {
+    const html = await fetchSiteFromGitHub();
+    state.siteLoadedFrom = 'github';
+    state.historicalSha = null;
+    state.historicalDate = null;
+    parseAndOpen(html, GH_SITE_FILE);
+    return;
+  } catch (err) {
+    if (err.status === 404) {
+      setLandingHint('empty',
+        `📭 Aucune version sur GitHub pour l'instant (<code>${esc(GH_SITE_REPO)}</code>).
+         Chargez le fichier local actuel pour créer la première version.`);
+    } else {
+      setLandingHint('warn',
+        `⚠️ Impossible de charger la dernière version depuis GitHub (${esc(err.message)}).
+         Vous pouvez charger un fichier local en attendant.`);
+    }
+  }
+
+  // 2) Otherwise restore a previous in-browser session
+  if (state.loadedHtml || (state.data && state.data.articles && state.data.articles.length)) {
+    openEditor();
+  }
+  // 3) Otherwise leave the landing card visible
+})();
+</script>
+</body>
+</html>
